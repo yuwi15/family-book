@@ -47,10 +47,12 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="flex flex-col h-full w-full overflow-hidden selection:bg-emerald-500 selection:text-white">
+<body class="flex flex-col h-full w-full overflow-hidden selection:bg-emerald-500 selection:text-white" style="padding-top: env(safe-area-inset-top);">
+
+  <main class="flex-1 min-h-0 overflow-y-auto w-full max-w-xl mx-auto px-4 py-4 pb-8 space-y-5" style="-webkit-overflow-scrolling: touch;">
 
   <!-- ВЕРХНЯЯ ПАНЕЛЬ: БЫСТРЫЙ ВХОД ПО ФЕЙСУ + РЕЖИМ ШЕФА -->
-  <header class="shrink-0 z-40 glass px-4 py-3 border-b border-slate-800/80" style="padding-top: max(12px, env(safe-area-inset-top));">
+  <header class="glass rounded-3xl px-4 py-3 border border-slate-800/80" style="padding-top: max(12px, env(safe-area-inset-top));">
     <div class="max-w-xl mx-auto flex items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <span class="text-2xl">📖</span>
@@ -68,8 +70,6 @@
       </button>
     </div>
   </header>
-
-  <main class="flex-1 min-h-0 overflow-y-auto w-full max-w-xl mx-auto px-4 py-4 pb-8 space-y-5" style="-webkit-overflow-scrolling: touch;">
 
     <!-- ==================== ВКЛАДКА 1: СЕГОДНЯ ==================== -->
     <section id="tab-today" class="space-y-4">
