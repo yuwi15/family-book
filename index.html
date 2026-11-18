@@ -23,6 +23,15 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    html, body {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: #090d16;
@@ -38,10 +47,10 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="h-[100dvh] overflow-hidden flex flex-col selection:bg-emerald-500 selection:text-white">
+<body class="flex flex-col h-full w-full overflow-hidden selection:bg-emerald-500 selection:text-white">
 
   <!-- ВЕРХНЯЯ ПАНЕЛЬ: БЫСТРЫЙ ВХОД ПО ФЕЙСУ + РЕЖИМ ШЕФА -->
-  <header class="shrink-0 z-40 glass px-4 py-3 border-b border-slate-800/80">
+  <header class="shrink-0 z-40 glass px-4 py-3 border-b border-slate-800/80" style="padding-top: max(12px, env(safe-area-inset-top));">
     <div class="max-w-xl mx-auto flex items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <span class="text-2xl">📖</span>
@@ -60,7 +69,7 @@
     </div>
   </header>
 
-  <main class="flex-1 overflow-y-auto overscroll-contain w-full max-w-xl mx-auto px-4 py-4 space-y-5">
+  <main class="flex-1 min-h-0 overflow-y-auto w-full max-w-xl mx-auto px-4 py-4 pb-8 space-y-5" style="-webkit-overflow-scrolling: touch;">
 
     <!-- ==================== ВКЛАДКА 1: СЕГОДНЯ ==================== -->
     <section id="tab-today" class="space-y-4">
@@ -191,14 +200,14 @@
           </button>
         </div>
 
-        <div class="flex gap-2 pt-1">
-          <input id="newShopItemName" type="text" placeholder="Добавить продукт..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
-          <input id="newShopItemAmount" type="number" placeholder="Грамм/шт" class="w-24 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" />
-          <select id="newShopItemDept" class="bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs text-slate-200">
+        <div class="grid grid-cols-12 gap-2 pt-1">
+          <input id="newShopItemName" type="text" placeholder="Добавить продукт (напр. Молоко)..." class="col-span-12 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white min-w-0" />
+          <input id="newShopItemAmount" type="number" placeholder="Грамм/шт" class="col-span-4 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white min-w-0" />
+          <select id="newShopItemDept" class="col-span-6 bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs text-slate-200 min-w-0">
             <option value="Мясо и птица">🥩 Мясо</option><option value="Рыба">🐟 Рыба</option>
             <option value="Молочка и яйца">🧀 Молочка</option><option value="Овощи и фрукты">🥦 Овощи</option><option value="Бакалея">🌾 Бакалея</option>
           </select>
-          <button onclick="addManualShoppingItem()" class="px-3 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">+</button>
+          <button onclick="addManualShoppingItem()" class="col-span-2 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">+</button>
         </div>
       </div>
 
@@ -399,7 +408,7 @@
 
         <div class="space-y-2 pt-1">
           <input id="newTaskTitle" type="text" placeholder="Что нужно сделать по дому? (напр. Помыть холодильник)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <select id="newTaskAssignee" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 flex-1">
               <option value="all">👨‍👩‍👧‍👦 Для всех</option>
               <option value="maxim">🧑‍🍳 Максим</option>
@@ -440,6 +449,10 @@
       <div class="bg-slate-900/80 rounded-2xl p-3 border border-slate-800 space-y-1.5">
         <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider">🛒 Ингредиенты (на 1 базовую порцию M)</div>
         <ul id="rdIngredients" class="text-xs text-slate-200 space-y-1 list-disc list-inside"></ul>
+      </div>
+      <div id="rdTipsBox" class="hidden bg-amber-500/15 border border-amber-500/40 rounded-2xl p-3 text-xs text-amber-100 space-y-1">
+        <div class="font-bold text-amber-300">⚠️ Важно от шефа (огонь, масло, нюансы):</div>
+        <p id="rdTipsText" class="leading-relaxed"></p>
       </div>
       <div class="space-y-2">
         <div class="text-xs font-bold text-indigo-300 uppercase tracking-wider">👨‍🍳 Пошаговое приготовление</div>
@@ -575,7 +588,7 @@
   </div>
 
   <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-  <nav class="shrink-0 z-40 glass border-t border-slate-800/90 px-1.5 py-1.5">
+  <nav class="shrink-0 z-40 glass border-t border-slate-800/90 px-1.5 py-1.5" style="padding-bottom: max(6px, env(safe-area-inset-bottom));">
     <div class="max-w-xl mx-auto grid grid-cols-7 gap-0.5">
       <button onclick="switchTab('today')" id="nav-today" class="flex flex-col items-center py-1.5 rounded-2xl text-emerald-400 font-semibold transition"><span class="text-base leading-none">🍽️</span><span class="text-[9px] mt-1">Сегодня</span></button>
       <button onclick="switchTab('menu')" id="nav-menu" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-base leading-none">📅</span><span class="text-[9px] mt-1">Меню</span></button>
@@ -632,7 +645,7 @@
         variants: [{ id: 'base', name: 'С индейкой', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }],
         collage: { S: '🥞 1 блин (40г овсянки + 1 яйцо + 20г сыра)', M: '🥞 1 плотный блин (55г овсянки + 2 яйца + 30г сыра)', L: '🥞 Мега-блин (75г овсянки + 3 яйца + сыр + паста)' },
         ingredients: [{ name: 'Овсяные хлопья', rawG: 55, dept: 'Бакалея' }, { name: 'Яйца куриные', rawG: 110, dept: 'Молочка и яйца' }, { name: 'Сыр лёгкий', rawG: 30, dept: 'Молочка и яйца' }],
-        steps: ['Смешай овсянку, яйца и соль.', 'Вылей на сковороду под крышку на 3-4 мин, переверни, положи сыр и ветчину.'],
+        tips: 'Жарить БЕЗ МАСЛА на хорошей антипригарной сковороде, огонь чуть ниже среднего (4 из 9).', steps: ['Смешай овсянку, яйца и соль (дай постоять 2 мин, чтобы хлопья набухли).', 'Хорошо разогрей сухую сковороду без масла на среднем огне, затем убавь до ниже среднего.', 'Вылей массу, накрой крышкой и пеки 3–4 минуты до схватывания верха.', 'Аккуратно переверни, выложи на половину блина сыр и индейку, сложи пополам и подержи 1 минуту под крышкой.'],
         ratings: {}
       },
       {
@@ -640,7 +653,7 @@
         variants: [{ id: 'base', name: 'Творог 5%', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }],
         collage: { S: '🍰 150г + ягоды', M: '🍰 220г + ложка йогурта', L: '🍰 300г + сметана и мёд' },
         ingredients: [{ name: 'Творог 5%', rawG: 180, dept: 'Молочка и яйца' }, { name: 'Ягоды замороженные', rawG: 50, dept: 'Овощи и фрукты' }],
-        steps: ['Смешай творог, яйца и 2 ст.л. рисовой муки/манки.', 'Выложи ягоды сверху и запекай 25 мин при 180°C.'],
+        tips: 'Выпекать в духовке при 180°C (режим верх-низ, без конвекции). Форму смазать каплей масла или застелить пергаментом.', steps: ['Разомни творог с яйцами, 2 ст.л. рисовой муки/манки и ванилином до однородности.', 'Переложи в форму, сверху вдави ягоды.', 'Выпекай 25–30 минут при 180°C до лёгкой золотистой корочки, дай остыть 10 минут перед нарезкой.'],
         ratings: {}
       },
       {
@@ -648,7 +661,7 @@
         variants: [{ id: 'base', name: 'С моцареллой', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }],
         collage: { S: 'Омлет из 2 яиц + зелень', M: 'Омлет + 30г сыра + тост', L: 'Омлет из 3 яиц + 50г сыра + 2 тоста' },
         ingredients: [{ name: 'Яйца куриные', rawG: 120, dept: 'Молочка и яйца' }],
-        steps: ['Обжарь томаты 2 мин, залей яйцами с молоком.', 'Посыпь моцареллой и томи под крышкой 5 мин.'],
+        tips: 'Готовить на СЛАБОМ огне под крышкой, чтобы омлет не пригорел снизу и стал пышным. Масла — максимум 1 ч.л. или совсем без него.', steps: ['Разогрей сковороду на среднем огне, припусти томаты и зелень 2 минуты.', 'Убавь огонь до слабого (3 из 9), залей взбитыми с молоком яйцами.', 'Посыпь моцареллой, накрой крышкой и томи 5–6 минут.'],
         ratings: {}
       },
       {
@@ -656,7 +669,7 @@
         variants: [{ id: 'base', name: 'На рисовой муке', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }],
         collage: { S: '2 сырника + йогурт', M: '3 сырника + ягоды', L: '4 сырника + сметана и джем' },
         ingredients: [{ name: 'Творог 5% в брикете', rawG: 180, dept: 'Молочка и яйца' }],
-        steps: ['Смешай творог, яйцо и рисовую муку, сформируй сырники.', 'Выпекай на пергаменте 20-25 мин при 180°C.'],
+        tips: 'Готовятся БЕЗ ЖАРКИ И БЕЗ МАСЛА в духовке! Бери сухой брикетный творог, чтобы сырники держали форму.', steps: ['Смешай творог в брикете, яйцо и рисовую муку, влажными руками скатай шарики и слегка приплюсни.', 'Выложи на силиконизированный пергамент.', 'Выпекай 20–25 минут при 180°C до румяности.'],
         ratings: {}
       },
       {
@@ -664,7 +677,7 @@
         variants: [{ id: 'base', name: 'Классика с перцем', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }],
         collage: { S: '2 яйца в соусе без хлеба', M: '2 яйца + 1 пита/тост', L: '3 яйца + 2 тоста с сыром' },
         ingredients: [{ name: 'Протёртые томаты', rawG: 150, dept: 'Бакалея' }, { name: 'Яйца куриные', rawG: 120, dept: 'Молочка и яйца' }],
-        steps: ['Потуши лук, сладкий перец и томаты со специями 5 мин.', 'Сделай лунки, вбей яйца и держи под крышкой 4 мин.'],
+        tips: 'Томатную основу тушить на среднем огне, а после вбивания яиц сразу убавить на слабый огонь, чтобы желток остался жидким.', steps: ['На капле масла на среднем огне обжарь лук и перец 3–4 минуты.', 'Влей протёртые томаты, добавь зиру, паприку, соль и потуши 5 минут до загустения.', 'Убавь огонь до слабого, сделай ложкой лунки, вбей яйца и держи под крышкой 4–5 минут (пока белок не схватится).'],
         ratings: {}
       },
 
@@ -682,7 +695,7 @@
         variants: [{ id: 'base', name: 'На 2-3 яйцах', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }],
         collage: { S: '🍳 2 яйца + черри + 1 тост', M: '🍳 2.5 яйца + 2 тоста', L: '🍳 3 яйца с сыром + 3 тоста' },
         ingredients: [{ name: 'Яйца куриные', rawG: 130, dept: 'Молочка и яйца' }, { name: 'Томаты черри', rawG: 120, dept: 'Овощи и фрукты' }],
-        steps: ['Взболтай яйца с молоком и аккуратно сдвигай лопаткой на тёплой сковороде 2-3 мин.', 'Выложи на подсушенные тосты.'],
+        tips: 'Главное правило скрэмбла: СЛАБЫЙ огонь! На сильном яйца сразу превратятся в сухой омлет. Хлеб подсушить на сухой сковороде без масла.', steps: ['Подсуши тосты на сухой сковороде без масла на среднем огне по 1 минуте с каждой стороны.', 'Взболтай яйца с молоком и солью.', 'На слабом огне с каплей сливочного масла (или без него) влей яйца и постоянно сдвигай края лопаткой к центру 2–3 минуты, сними чуть влажным.'],
         ratings: {}
       },
       {
@@ -698,7 +711,7 @@
         variants: [{ id: 'base', name: 'В лаваше', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }],
         collage: { S: 'Половина ролла + овощи', M: '1 полный ролл', L: '1.5 ролла с двойным сыром' },
         ingredients: [{ name: 'Лаваш армянский тонкий', rawG: 70, dept: 'Бакалея' }],
-        steps: ['Смажь лаваш йогуртом, выложи курицу и овощи.', 'Сверни и подрумянь на сухой сковороде по 1.5 мин с каждой стороны.'],
+        tips: 'Обжаривать строго на СУХОЙ сковороде БЕЗ МАСЛА на среднем огне, чтобы лаваш стал хрустящим, а не жирным.', steps: ['Смажь лаваш греческим йогуртом со специями, выложи готовую курицу, сыр и овощи.', 'Плотно заверни конвертом.', 'Разогрей сухую сковороду на среднем огне и поджарь без масла по 1.5 минуты с каждой стороны до золотистых полосок.'],
         ratings: {}
       },
       {
@@ -716,7 +729,7 @@
         variants: [{ id: 'chicken', name: 'Куриное филе', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }, { id: 'turkey', name: 'Филе индейки', kcalDiff: -15, pDiff: 3, fDiff: -2, cDiff: 0 }],
         collage: { S: '🍽️ 150г филе + 90г гречки + брокколи', M: '🍽️ 190г филе + 160г гречки + брокколи', L: '🍽️ 240г филе + 250г гречки + сыр' },
         ingredients: [{ name: 'Куриное филе (или индейка)', rawG: 230, dept: 'Мясо и птица' }, { name: 'Гречка (сухая крупа)', rawG: 65, dept: 'Бакалея' }, { name: 'Брокколи', rawG: 150, dept: 'Овощи и фрукты' }],
-        steps: ['Замаринуй филе в паприке и чесноке, запекай в фольге 25 мин при 190°C.', 'Свари гречку 1:2 (15 мин), брокколи отвари 4 минуты.'],
+        tips: 'Филе запекается в собственном соку БЕЗ МАСЛА. Гречку после закипания варить строго на самом слабом огне.', steps: ['Натри филе солью, паприкой и чесноком, плотно заверни в фольгу/пергамент и запекай 25 минут при 190°C (за 5 мин до конца можно приоткрыть для корочки).', 'Гречку залей водой 1:2, доведи до кипения на сильном огне, убавь на минимум (2 из 9) и вари под крышкой 15 мин.', 'Брокколи закинь в кипящую подсоленную воду на 4 минуты (сильный огонь), затем слей воду.'],
         ratings: {}
       },
       {
@@ -724,7 +737,7 @@
         variants: [{ id: 'beef', name: 'Говядина постная', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }, { id: 'turkey', name: 'Бедро индейки', kcalDiff: -35, pDiff: -2, fDiff: -4, cDiff: 0 }],
         collage: { S: '🍲 150г гуляша + 90г риса + салат', M: '🍲 190г гуляша + 160г риса + салат', L: '🍲 250г гуляша + 260г риса + хлеб' },
         ingredients: [{ name: 'Говядина постная (или индейка)', rawG: 220, dept: 'Мясо и птица' }, { name: 'Рис длиннозёрный (сухой)', rawG: 65, dept: 'Бакалея' }],
-        steps: ['Обжарь мясо с луком и морковью, добавь томатную пасту и туши 30 мин.', 'Отвари рис 1:2.'],
+        tips: 'Мясо сначала прижарить на СИЛЬНОМ огне (чтобы запечатать соки), потом тушить на САМОМ СЛАБОМ огне под крышкой.', steps: ['Нарежь мясо кубиками, обжарь на сильном огне с 1 ч.л. масла 4–5 минут до корочки.', 'Добавь лук и морковь, жарь 3 минуты на среднем огне.', 'Вмешай томатную пасту, влей стакан кипятка, убавь огонь на минимум и туши под крышкой 30–35 минут.', 'Промытый рис залей водой 1:2 и вари на слабом огне 15 минут.'],
         ratings: {}
       },
       {
@@ -732,7 +745,7 @@
         variants: [{ id: 'turkey_mince', name: 'Фарш индейки', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }, { id: 'chicken_mince', name: 'Фарш куриный', kcalDiff: -15, pDiff: -1, fDiff: -2, cDiff: 0 }, { id: 'beef_mince', name: 'Фарш говяжий', kcalDiff: 45, pDiff: 3, fDiff: 5, cDiff: 0 }],
         collage: { S: '🍝 100г пасты + 160г соуса', M: '🍝 180г пасты + 180г соуса + пармезан', L: '🍝 270г пасты + 220г соуса + 25г сыра' },
         ingredients: [{ name: 'Фарш из индейки', rawG: 200, dept: 'Мясо и птица' }, { name: 'Макароны твёрдых сортов', rawG: 75, dept: 'Бакалея' }],
-        steps: ['Обжарь фарш с луком, залей пассатой и туши 10 мин.', 'Отвари пасту и смешай с соусом.'],
+        tips: 'Фарш из индейки/курицы можно жарить БЕЗ МАСЛА на антипригарной сковороде на среднем-сильном огне.', steps: ['На среднем огне без масла обжарь фарш с мелко нарезанным луком 7–8 минут, постоянно разбивая комочки лопаткой.', 'Влей пассату (протёртые томаты), добавь орегано/базилик, убавь огонь до слабого и туши 10 минут.', 'Макароны вари в кипящей воде на среднем-сильном огне до аль денте и соедини с соусом.'],
         ratings: {}
       },
       {
@@ -740,7 +753,7 @@
         variants: [{ id: 'turkey', name: 'Котлеты из индейки', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }, { id: 'chicken', name: 'Котлеты из курицы', kcalDiff: -10, pDiff: -1, fDiff: -1, cDiff: 0 }],
         collage: { S: '🍽️ 2 котлеты + 100г картофеля + салат', M: '🍽️ 2 крупные котлеты + 180г картофеля', L: '🍽️ 3 котлеты + 280г картофеля + соус' },
         ingredients: [{ name: 'Филе индейки/курицы', rawG: 220, dept: 'Мясо и птица' }, { name: 'Картофель свежий', rawG: 220, dept: 'Овощи и фрукты' }],
-        steps: ['Запеки дольки картофеля 30 мин при 200°C.', 'Поруби филе, смешай с яйцом и сметаной, обжарь котлеты.'],
+        tips: 'Котлеты жарить на СРЕДНЕМ огне (без крышки по 3–4 мин, затем под крышкой ещё 3 мин на слабом, без лишнего масла).', steps: ['Картофель нарежь дольками, сбрызни 1 ч.л. масла со специями и запекай 30 минут при 200°C.', 'Филе мелко поруби ножом, смешай с яйцом и ложкой сметаны/йогурта.', 'Жарь на антипригарной сковороде без масла (или с каплей) на среднем огне по 3–4 минуты с каждой стороны, затем накрой крышкой и додержи 3 минуты на слабом огне.'],
         ratings: {}
       },
       {
@@ -748,7 +761,7 @@
         variants: [{ id: 'chicken', name: 'С курицей', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }, { id: 'beef', name: 'С говядиной', kcalDiff: 35, pDiff: 3, fDiff: 3, cDiff: 0 }],
         collage: { S: '🍛 180г плова + томаты', M: '🍛 260г плова + салат', L: '🍛 360г плова с горкой мяса' },
         ingredients: [{ name: 'Курица (или говядина) для плова', rawG: 220, dept: 'Мясо и птица' }, { name: 'Рис для плова (сухой)', rawG: 75, dept: 'Бакалея' }],
-        steps: ['Обжарь мясо, лук и морковь со специями и чесноком.', 'Засыпь рис, залей водой и томи 25 минут под крышкой.'],
+        tips: 'Зирвак (мясо с овощами) жарить на СИЛЬНОМ огне, а когда засыпал рис — убавить на МИНИМАЛЬНЫЙ огонь и НЕ открывать крышку 25 минут!', steps: ['На сильном огне с 1 ст.л. масла обжарь мясо 5 минут, добавь лук и морковь соломкой ещё на 5 минут.', 'Посоли, добавь специи для плова (зиру, барбарис), засыпь промытый рис и разровняй.', 'Влей кипяток на 1.5 см выше риса, воткни головку чеснока, накрой плотной крышкой, убавь огонь на минимум и томи 25 минут не перемешивая.'],
         ratings: {}
       },
       {
@@ -764,7 +777,7 @@
         variants: [{ id: 'chicken', name: 'Куриное бедро/грудка', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }, { id: 'turkey', name: 'Индейка гриль', kcalDiff: -25, pDiff: 3, fDiff: -3, cDiff: 0 }],
         collage: { S: '🌯 Половина лаваша + много овощей + 140г мяса + йогуртовый соус', M: '🌯 Целый лаваш + 180г мяса + 25г сыра', L: '🌯 1.5 шаурмы (250г мяса + моцарелла)' },
         ingredients: [{ name: 'Куриное филе/бедро', rawG: 220, dept: 'Мясо и птица' }, { name: 'Лаваш армянский', rawG: 90, dept: 'Бакалея' }],
-        steps: ['Запеки мясо со специями карри и паприкой.', 'Смешай соус из греческого йогурта, чеснока и укропа, заверни с овощами и подрумянь на сухой сковороде.'],
+        tips: 'Готовую скрученную шаурму поджаривать строго БЕЗ МАСЛА на сухой сковороде-гриль на среднем огне!', steps: ['Мясо нарежь полосками, замаринуй в специях и запеки 20 минут при 200°C (или обжарь без масла на сильном огне 7–8 минут).', 'Смешай соус: греческий йогурт + сметана + тёртый чеснок и укроп.', 'На лаваш выложи соус, капусту, огурцы, томаты и мясо, заверни и подсуши на сухой сковороде без масла по 1.5 минуты с каждой стороны.'],
         ratings: {}
       },
       {
@@ -846,6 +859,7 @@
         collage: JSON.parse(JSON.stringify(rb.collage)),
         ingredients: JSON.parse(JSON.stringify(rb.ingredients || [])),
         steps: JSON.parse(JSON.stringify(rb.steps || [])),
+        tips: rb.tips || "",
         dislikes: [],
         skippedBy: []
       };
@@ -1173,16 +1187,23 @@
     // ================= МОДАЛКА "КАК ГОТОВИТЬ РЕЦЕПТ" =================
     function openRecipeDetailsModal(dayId, slot) {
       const meal = state.weeklyMenu[dayId][slot];
-      showRecipeModalContent(meal.title, meal.prepTime, meal.ingredients || [], meal.steps || []);
+      showRecipeModalContent(meal.title, meal.prepTime, meal.ingredients || [], meal.steps || [], meal.tips || "");
     }
 
     function openBookRecipeDetails(recipeId) {
       const rb = state.recipeBook.find(r => r.id === recipeId);
       if (!rb) return;
-      showRecipeModalContent(rb.title, rb.prepTime, rb.ingredients || [], rb.steps || []);
+      showRecipeModalContent(rb.title, rb.prepTime, rb.ingredients || [], rb.steps || [], rb.tips || "");
     }
 
-    function showRecipeModalContent(title, prepTime, ingredients, steps) {
+    function showRecipeModalContent(title, prepTime, ingredients, steps, tips) {
+      const tipsBox = document.getElementById('rdTipsBox');
+      if (tips) {
+        tipsBox.classList.remove('hidden');
+        document.getElementById('rdTipsText').textContent = tips;
+      } else {
+        tipsBox.classList.add('hidden');
+      }
       document.getElementById('rdTitle').textContent = title;
       document.getElementById('rdPrepTime').textContent = `⏱ ${prepTime}`;
       document.getElementById('rdIngredients').innerHTML = ingredients.length > 0
@@ -1424,12 +1445,12 @@
                 <div class="flex items-center justify-between gap-2 rounded-2xl border transition ${state.inStoreMode ? 'p-3.5' : 'p-2.5'} ${
                   item.checked ? 'bg-slate-950/60 border-slate-800/60 opacity-55' : 'bg-slate-900/90 border-slate-800'
                 }">
-                  <button onclick="toggleShopItem('${item.id}')" class="flex items-center gap-3 flex-1 text-left">
+                  <button onclick="toggleShopItem('${item.id}')" class="flex items-center gap-2.5 flex-1 min-w-0 text-left">
                     <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 ${
                       item.checked ? 'bg-emerald-500 border-emerald-500 text-slate-950 font-bold' : 'border-slate-600'
                     }">${item.checked ? '✓' : ''}</div>
-                    <div>
-                      <div class="${state.inStoreMode ? 'text-base font-bold' : 'text-xs font-semibold'} ${item.checked ? 'line-through text-slate-400' : 'text-white'}">${item.name}</div>
+                    <div class="min-w-0 flex-1">
+                      <div class="break-words ${state.inStoreMode ? 'text-base font-bold' : 'text-xs font-semibold'} ${item.checked ? 'line-through text-slate-400' : 'text-white'}">${item.name}</div>
                       <div class="text-[11px] text-slate-400">Нужно: <b class="text-slate-200">${item.rawAmount} ${item.unit}</b>${item.replacedWith ? `<span class="text-amber-300 ml-1">• Заменил: ${item.replacedWith}</span>` : ''}</div>
                     </div>
                   </button>
