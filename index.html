@@ -438,6 +438,33 @@
 
   <!-- ==================== МОДАЛКИ ==================== -->
 
+  <!-- Модалка 0: Расчёт порций и граммовок НА ВСЕХ (с запасом) -->
+  <div id="familyPortionsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass rounded-3xl max-w-md w-full p-5 space-y-4 border border-slate-700 max-h-[88vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">👨‍👩‍👧‍👦 Расчёт на всю семью</span>
+          <h3 id="fpTitle" class="text-base font-bold text-white mt-1.5">Блюдо</h3>
+        </div>
+        <button onclick="closeModal('familyPortionsModal')" class="text-slate-400 hover:text-white text-lg px-1">✕</button>
+      </div>
+
+      <div id="fpMembersList" class="grid grid-cols-2 gap-2"></div>
+
+      <div class="flex items-center justify-between bg-slate-900/90 px-3 py-2.5 rounded-2xl border border-slate-800 text-xs">
+        <span class="text-slate-300">Небольшой запас (+10%):</span>
+        <button id="fpReserveToggle" onclick="toggleFamilyReserve()" class="px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">Вкл (+10%)</button>
+      </div>
+
+      <div class="bg-slate-900/90 rounded-2xl p-3.5 border border-slate-800 space-y-2">
+        <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider">⚖️ Сколько продуктов брать на всех (сырой вес):</div>
+        <ul id="fpIngredientsTotal" class="space-y-1.5 text-xs text-slate-200"></ul>
+      </div>
+
+      <button onclick="closeModal('familyPortionsModal')" class="w-full py-2.5 rounded-2xl bg-emerald-500 text-slate-950 font-bold text-xs">Готово, пошёл взвешивать!</button>
+    </div>
+  </div>
+
   <!-- Модалка 1: Как готовить рецепт -->
   <div id="recipeDetailsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="glass rounded-3xl max-w-md w-full p-5 space-y-4 border border-slate-700 max-h-[88vh] overflow-y-auto">
@@ -1138,7 +1165,10 @@
               <div class="space-y-1.5">
                 <div class="text-[11px] font-bold text-emerald-400">📸 Коллаж твоей порции (${user.portion}):</div>
                 <p class="text-xs text-slate-200 leading-relaxed">${collageText}</p>
-                <button onclick="openRecipeDetailsModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-300 hover:text-indigo-200 underline">📖 Как готовить рецепт →</button>
+                <div class="flex items-center gap-3 flex-wrap pt-0.5">
+                  <button onclick="openRecipeDetailsModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-300 hover:text-indigo-200 underline">📖 Как готовить →</button>
+                  <button onclick="openFamilyPortionsModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold transition">👨‍👩‍👧‍👦 На всех</button>
+                </div>
               </div>
               <div class="text-right shrink-0 bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800">
                 <div class="text-sm font-extrabold text-white">${macros.kcal} <span class="text-[10px] font-normal text-slate-400">ккал</span></div>
@@ -1184,6 +1214,84 @@
     function changeMealVariant(dayId, slot, variantId) {
       state.weeklyMenu[dayId][slot].selectedVariant = variantId;
       saveState(); renderAll();
+    }
+
+    // ================= РАСЧЁТ «НА ВСЕХ» ПО ГРАММОВКАМ С ЗАПАСОМ =================
+    let fpContext = { dayId: null, slot: null, recipeId: null, reserve: true };
+
+    function openFamilyPortionsModal(dayId, slot, recipeId = null) {
+      fpContext = { dayId, slot, recipeId, reserve: true };
+      renderFamilyPortionsModal();
+      document.getElementById('familyPortionsModal').classList.remove('hidden');
+    }
+
+    function toggleFamilyReserve() {
+      fpContext.reserve = !fpContext.reserve;
+      renderFamilyPortionsModal();
+    }
+
+    function renderFamilyPortionsModal() {
+      let meal = null;
+      if (fpContext.dayId && fpContext.slot) {
+        meal = state.weeklyMenu[fpContext.dayId][fpContext.slot];
+      } else if (fpContext.recipeId) {
+        meal = state.recipeBook.find(r => r.id === fpContext.recipeId);
+      }
+      if (!meal) return;
+
+      document.getElementById('fpTitle').textContent = meal.title;
+      const skipped = meal.skippedBy || [];
+
+      let totalMultiplier = 0;
+      const memberCards = Object.values(state.profiles).map(p => {
+        const isSkipped = skipped.includes(p.id);
+        const mult = isSkipped ? 0 : (PORTION_MULTIPLIERS[p.portion] || 1.0);
+        totalMultiplier += mult;
+        return `
+          <div class="rounded-2xl p-2.5 border ${isSkipped ? 'bg-slate-950/60 border-rose-500/30 opacity-55' : 'bg-slate-900/90 border-emerald-500/30'} flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-lg shrink-0">${p.avatar}</span>
+              <div class="min-w-0">
+                <div class="text-xs font-bold text-white truncate">${p.name}</div>
+                <div class="text-[10px] ${isSkipped ? 'text-rose-300' : 'text-emerald-400 font-semibold'}">
+                  ${isSkipped ? '🚫 Пропускает' : `Порция ${p.portion} (×${mult})`}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('fpMembersList').innerHTML = memberCards;
+
+      const resBtn = document.getElementById('fpReserveToggle');
+      resBtn.textContent = fpContext.reserve ? 'Вкл (+10%)' : 'Выкл (без запаса)';
+      resBtn.className = fpContext.reserve
+        ? 'px-3 py-1 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs'
+        : 'px-3 py-1 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs border border-slate-700';
+
+      const reserveFactor = fpContext.reserve ? 1.10 : 1.0;
+      const finalFactor = totalMultiplier * reserveFactor;
+      const ingredients = meal.ingredients || [];
+
+      if (finalFactor === 0) {
+        document.getElementById('fpIngredientsTotal').innerHTML = '<li class="text-amber-300">Все нажали «Пропущу» — готовить ничего не нужно!</li>';
+        return;
+      }
+
+      if (ingredients.length === 0) {
+        document.getElementById('fpIngredientsTotal').innerHTML = '<li class="text-slate-400">Готовый перекус: просто выдай каждому по его порции (S/M/L).</li>';
+        return;
+      }
+
+      document.getElementById('fpIngredientsTotal').innerHTML = ingredients.map(ing => {
+        const rawTotal = Math.round((ing.rawG || 0) * finalFactor / 5) * 5 || Math.round((ing.rawG || 0) * finalFactor);
+        return `
+          <li class="flex items-center justify-between bg-slate-950/70 px-3 py-2 rounded-xl border border-slate-800/80">
+            <span class="text-slate-200 font-medium">${ing.name}</span>
+            <span class="text-emerald-300 font-extrabold shrink-0 ml-2">${rawTotal} г</span>
+          </li>
+        `;
+      }).join('');
     }
 
     // ================= МОДАЛКА "КАК ГОТОВИТЬ РЕЦЕПТ" =================
@@ -1307,7 +1415,10 @@
               ` : ''}
 
               <div class="flex items-center justify-between gap-2">
-                <button onclick="openRecipeDetailsModal('${state.activeDay}', '${slot}')" class="text-xs font-bold text-indigo-300 underline">📖 Как готовить →</button>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button onclick="openRecipeDetailsModal('${state.activeDay}', '${slot}')" class="text-xs font-bold text-indigo-300 underline">📖 Как готовить →</button>
+                  <button onclick="openFamilyPortionsModal('${state.activeDay}', '${slot}')" class="px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold">👨‍👩‍👧‍👦 На всех</button>
+                </div>
                 <button onclick="openSwapMealModal('${state.activeDay}', '${slot}')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-300 border border-slate-700">
                   🔄 Заменить из Книги
                 </button>
@@ -1360,7 +1471,8 @@
               </button>
             </div>
             <div class="flex items-center justify-between">
-              <button onclick="openBookRecipeDetails('${rb.id}')" class="text-xs font-bold text-indigo-300 underline">📖 Как готовить и ингредиенты →</button>
+              <button onclick="openBookRecipeDetails('${rb.id}')" class="text-xs font-bold text-indigo-300 underline">📖 Как готовить →</button>
+              <button onclick="openFamilyPortionsModal(null, null, '${rb.id}')" class="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold">👨‍👩‍👧‍👦 На всех</button>
             </div>
             ${renderStarRatingWidget(rb.id)}
           </div>
