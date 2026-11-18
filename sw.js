@@ -1,4 +1,4 @@
-const CACHE_NAME = 'family-book-v3';
+const CACHE_NAME = 'family-book-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -21,7 +21,6 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-First: сначала берём свежую версию из сети, а кэш — только если нет интернета в магазине
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
