@@ -1,4 +1,4 @@
-const CACHE_NAME = 'family-kitchen-v1';
+const CACHE_NAME = 'family-book-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -21,10 +21,16 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Network-First: сначала берём свежую версию из сети, а кэш — только если нет интернета в магазине
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).catch(() => caches.match('./index.html'));
-    })
+    fetch(event.request)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        return res;
+      })
+      .catch(() => caches.match(event.request).then((c) => c || caches.match('./index.html')))
   );
 });
