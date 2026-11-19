@@ -191,6 +191,23 @@
           </button>
         </div>
 
+        <div class="flex flex-wrap items-center gap-2 pt-1 bg-slate-900/70 p-2.5 rounded-2xl border border-slate-800">
+          <span class="text-[11px] text-slate-400">Считать с:</span>
+          <select id="shopStartDaySelect" onchange="changeShopStartDay(this.value)" class="bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200">
+            <option value="mon">Понедельника (вся неделя)</option>
+            <option value="tue">Вторника</option>
+            <option value="wed">Среды</option>
+            <option value="thu">Четверга</option>
+            <option value="fri">Пятницы</option>
+            <option value="sat">Субботы</option>
+            <option value="sun">Воскресенья</option>
+          </select>
+          <label class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-[11px] text-emerald-300 cursor-pointer ml-auto">
+            <input id="shopReserveToggle" type="checkbox" onchange="toggleShopReserve()" class="rounded bg-slate-800 border-slate-600 text-emerald-500" />
+            <span>+10% запас</span>
+          </label>
+        </div>
+
         <div class="flex flex-wrap gap-2 pt-1">
           <button onclick="recalculateSmartShoppingList()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-300 border border-slate-700 transition">
             🔄 Пересчитать по меню и холодильнику
@@ -462,6 +479,48 @@
       </div>
 
       <button onclick="closeModal('familyPortionsModal')" class="w-full py-2.5 rounded-2xl bg-emerald-500 text-slate-950 font-bold text-xs">Готово, пошёл взвешивать!</button>
+    </div>
+  </div>
+
+  <!-- Модалка 0.5: Приготовил блюдо — списание из Запасов -->
+  <div id="cookConfirmModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass rounded-3xl max-w-md w-full p-5 space-y-3.5 border border-slate-700 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">🍳 Списание продуктов</span>
+          <h3 id="cookTitle" class="text-base font-bold text-white mt-1.5">Блюдо</h3>
+        </div>
+        <button onclick="closeModal('cookConfirmModal')" class="text-slate-400 hover:text-white text-lg px-1">✕</button>
+      </div>
+
+      <div class="space-y-1.5">
+        <div class="text-[11px] text-slate-400 font-semibold">Кто ест (нажми, чтобы переключить):</div>
+        <div id="cookMembersChips" class="grid grid-cols-2 gap-1.5"></div>
+      </div>
+
+      <div class="bg-slate-900/90 rounded-2xl p-3 border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-bold text-slate-200">Порций (база M = 1):</span>
+          <div class="flex items-center gap-1.5">
+            <button onclick="adjustCookPortions(-0.5)" class="w-7 h-7 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700">−</button>
+            <input id="cookPortionsInput" type="number" step="0.1" min="0" oninput="onCookPortionsManualChange(this.value)" class="w-16 text-center bg-slate-950 border border-slate-700 rounded-xl py-1 text-xs font-extrabold text-emerald-300" />
+            <button onclick="adjustCookPortions(0.5)" class="w-7 h-7 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700">+</button>
+          </div>
+        </div>
+        <div id="cookPortionPresets" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <div class="bg-slate-900/90 rounded-2xl p-3.5 border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">⚖️ Списать из Запасов (г):</span>
+          <span class="text-[10px] text-slate-400">Можно поправить вручную</span>
+        </div>
+        <div id="cookIngredientsList" class="space-y-2"></div>
+      </div>
+
+      <button onclick="confirmCookAndDeduct()" class="w-full py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20">
+        ✅ Приготовил — списать из Запасов
+      </button>
     </div>
   </div>
 
@@ -915,6 +974,8 @@
       activeTab: 'today',
       menuSubTab: 'week', // 'week' или 'book'
       bookFilter: 'all',
+      shopStartDay: 'mon',
+      shopReserve: false,
       chefMode: true,
       inStoreMode: false,
       profiles: {
@@ -1165,9 +1226,10 @@
               <div class="space-y-1.5">
                 <div class="text-[11px] font-bold text-emerald-400">📸 Коллаж твоей порции (${user.portion}):</div>
                 <p class="text-xs text-slate-200 leading-relaxed">${collageText}</p>
-                <div class="flex items-center gap-3 flex-wrap pt-0.5">
+                <div class="flex items-center gap-2 flex-wrap pt-0.5">
                   <button onclick="openRecipeDetailsModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-300 hover:text-indigo-200 underline">📖 Как готовить →</button>
                   <button onclick="openFamilyPortionsModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold transition">👨‍👩‍👧‍👦 На всех</button>
+                  <button onclick="openCookConfirmModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl ${meal.cooked ? 'bg-amber-500/25 text-amber-200 border-amber-500/50' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30'} border text-[11px] font-bold transition">${meal.cooked ? '✓ Приготовлено' : '🍳 Приготовил'}</button>
                 </div>
               </div>
               <div class="text-right shrink-0 bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800">
@@ -1214,6 +1276,103 @@
     function changeMealVariant(dayId, slot, variantId) {
       state.weeklyMenu[dayId][slot].selectedVariant = variantId;
       saveState(); renderAll();
+    }
+
+    // ================= УМНЫЙ МАТЧИНГ ПРОДУКТОВ И ВАРИАНТОВ =================
+    function getEffectiveMealIngredients(meal) {
+      const ings = JSON.parse(JSON.stringify(meal.ingredients || []));
+      const v = meal.selectedVariant;
+      if (!v || v === 'base' || ings.length === 0) return ings;
+      const variantMap = {
+        turkey: 'Филе индейки',
+        chicken: 'Куриное филе',
+        beef: 'Говядина постная',
+        turkey_mince: 'Фарш из индейки',
+        chicken_mince: 'Фарш куриный',
+        beef_mince: 'Фарш говяжий',
+        pork_lean: 'Свиная вырезка постная',
+        tuna: 'Тунец консервированный в с/с'
+      };
+      if (variantMap[v]) {
+        ings[0].name = variantMap[v];
+      }
+      return ings;
+    }
+
+    function normalizeIngredientTokens(name) {
+      const stop = new Set(['филе','для','или','из','с','и','в','по','свежий','свежая','сухой','сухая','сухие','крупа','варёные','лёгкий','постная','постный','твёрдых','сортов','с/с','консервированный','замороженные','замороженный','куриные','армянский','тонкий','длиннозёрный','плова','брикете','протёртые','1.5%','5%','70%']);
+      const rawWords = (name || '').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[^a-zа-яё0-9]+/gi, ' ').trim().split(/\s+/);
+      const stems = [];
+      rawWords.forEach(w => {
+        if (!w || stop.has(w)) return;
+        if (w.startsWith('куриц') || w.startsWith('курин') || w.startsWith('грудк') || w.startsWith('бедр')) stems.push('курица');
+        else if (w.startsWith('индей')) stems.push('индейка');
+        else if (w.startsWith('говяд')) stems.push('говядина');
+        else if (w.startsWith('свин')) stems.push('свинина');
+        else if (w.startsWith('фарш')) stems.push('фарш');
+        else if (w.startsWith('фет') || w.startsWith('сиртак')) stems.push('фета');
+        else if (w.startsWith('моцарел')) stems.push('моцарелла');
+        else if (w.startsWith('сыр')) stems.push('сыр');
+        else if (w.startsWith('творог')) stems.push('творог');
+        else if (w.startsWith('яйц')) stems.push('яйца');
+        else if (w.startsWith('молок')) stems.push('молоко');
+        else if (w.startsWith('йогурт')) stems.push('йогурт');
+        else if (w.startsWith('рис')) stems.push('рис');
+        else if (w.startsWith('греч')) stems.push('гречка');
+        else if (w.startsWith('овсян')) stems.push('овсянка');
+        else if (w.startsWith('макарон') || w.startsWith('паст')) stems.push('макароны');
+        else if (w.startsWith('лаваш')) stems.push('лаваш');
+        else if (w.startsWith('картоф')) stems.push('картофель');
+        else if (w.startsWith('броккол')) stems.push('брокколи');
+        else if (w.startsWith('огур')) stems.push('огурец');
+        else if (w.startsWith('томат') || w.startsWith('помидор') || w.startsWith('черр')) stems.push('томат');
+        else if (w.startsWith('банан')) stems.push('банан');
+        else if (w.startsWith('орех')) stems.push('орехи');
+        else if (w.startsWith('тун')) stems.push('тунец');
+        else if (w.startsWith('треск')) stems.push('треска');
+        else if (w.startsWith('булгур')) stems.push('булгур');
+        else if (w.startsWith('чечевиц')) stems.push('чечевица');
+        else if (w.startsWith('ягод')) stems.push('ягоды');
+        else if (w.startsWith('хлеб') || w.startsWith('тост')) stems.push('хлеб');
+        else if (w.startsWith('арахис')) stems.push('арахис');
+        else if (w.startsWith('шоколад')) stems.push('шоколад');
+        else stems.push(w);
+      });
+      return [...new Set(stems)];
+    }
+
+    function isSameIngredient(a, b) {
+      const ta = normalizeIngredientTokens(a);
+      const tb = normalizeIngredientTokens(b);
+      if (ta.length === 0 || tb.length === 0) return false;
+      const smaller = ta.length <= tb.length ? ta : tb;
+      const larger = ta.length <= tb.length ? new Set(tb) : new Set(ta);
+      return smaller.every(t => larger.has(t));
+    }
+
+    function getFridgeStockForIngredient(name) {
+      return state.fridge
+        .filter(f => isSameIngredient(f.name, name))
+        .reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+    }
+
+    function deductFromFridge(name, grams) {
+      let remaining = Math.max(0, Number(grams) || 0);
+      if (remaining === 0) return;
+      const matching = state.fridge
+        .filter(f => isSameIngredient(f.name, name))
+        .sort((a, b) => {
+          const expA = addDaysISO(a.boughtDate || TODAY_ISO, a.shelfLifeDays || 7);
+          const expB = addDaysISO(b.boughtDate || TODAY_ISO, b.shelfLifeDays || 7);
+          return expA.localeCompare(expB);
+        });
+      matching.forEach(item => {
+        if (remaining <= 0) return;
+        const take = Math.min(item.amount, remaining);
+        item.amount = Math.max(0, item.amount - take);
+        remaining -= take;
+      });
+      state.fridge = state.fridge.filter(f => f.amount > 0);
     }
 
     // ================= РАСЧЁТ «НА ВСЕХ» ПО ГРАММОВКАМ С ЗАПАСОМ =================
@@ -1271,7 +1430,7 @@
 
       const reserveFactor = fpContext.reserve ? 1.10 : 1.0;
       const finalFactor = totalMultiplier * reserveFactor;
-      const ingredients = meal.ingredients || [];
+      const ingredients = getEffectiveMealIngredients(meal);
 
       if (finalFactor === 0) {
         document.getElementById('fpIngredientsTotal').innerHTML = '<li class="text-amber-300">Все нажали «Пропущу» — готовить ничего не нужно!</li>';
@@ -1414,10 +1573,11 @@
                 </div>
               ` : ''}
 
-              <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
                 <div class="flex items-center gap-2 flex-wrap">
                   <button onclick="openRecipeDetailsModal('${state.activeDay}', '${slot}')" class="text-xs font-bold text-indigo-300 underline">📖 Как готовить →</button>
                   <button onclick="openFamilyPortionsModal('${state.activeDay}', '${slot}')" class="px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold">👨‍👩‍👧‍👦 На всех</button>
+                  <button onclick="openCookConfirmModal('${state.activeDay}', '${slot}')" class="px-2.5 py-1 rounded-xl ${meal.cooked ? 'bg-amber-500/25 text-amber-200 border-amber-500/50' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30'} border text-xs font-bold">${meal.cooked ? '✓ Приготовлено' : '🍳 Приготовил'}</button>
                 </div>
                 <button onclick="openSwapMealModal('${state.activeDay}', '${slot}')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-300 border border-slate-700">
                   🔄 Заменить из Книги
@@ -1470,9 +1630,12 @@
                 + В ${activeDayShort}
               </button>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
               <button onclick="openBookRecipeDetails('${rb.id}')" class="text-xs font-bold text-indigo-300 underline">📖 Как готовить →</button>
-              <button onclick="openFamilyPortionsModal(null, null, '${rb.id}')" class="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold">👨‍👩‍👧‍👦 На всех</button>
+              <div class="flex items-center gap-1.5">
+                <button onclick="openFamilyPortionsModal(null, null, '${rb.id}')" class="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-bold">👨‍👩‍👧‍👦 На всех</button>
+                <button onclick="openCookConfirmModal(null, null, '${rb.id}')" class="px-2.5 py-1 rounded-xl bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs font-bold">🍳 Приготовил</button>
+              </div>
             </div>
             ${renderStarRatingWidget(rb.id)}
           </div>
@@ -1534,8 +1697,14 @@
 
     // ================= ВКЛАДКА 3: ПОКУПКИ + ЗАМЕНА =================
     function toggleInStoreMode() { state.inStoreMode = !state.inStoreMode; saveState(); renderShoppingTab(); }
+    function changeShopStartDay(dayId) { state.shopStartDay = dayId; saveState(); }
+    function toggleShopReserve() { state.shopReserve = document.getElementById('shopReserveToggle').checked; saveState(); }
 
     function renderShoppingTab() {
+      const startSel = document.getElementById('shopStartDaySelect');
+      if (startSel) startSel.value = state.shopStartDay || 'mon';
+      const resChk = document.getElementById('shopReserveToggle');
+      if (resChk) resChk.checked = !!state.shopReserve;
       const btn = document.getElementById('inStoreModeBtn');
       btn.textContent = state.inStoreMode ? '🟢 Режим «Я в магазине» ВКЛ' : '🛒 Я в магазине';
       btn.className = state.inStoreMode
@@ -1615,7 +1784,7 @@
       const amount = Number(document.getElementById('newShopItemAmount').value) || 1;
       const dept = document.getElementById('newShopItemDept').value;
       if (!name) return;
-      state.shoppingList.unshift({ id: 'sh_' + Date.now(), name, dept, rawAmount: amount, unit: amount > 15 ? 'г' : 'шт/уп', checked: false, replacedWith: '' });
+      state.shoppingList.unshift({ id: 'sh_' + Date.now(), name, dept, rawAmount: amount, unit: amount > 15 ? 'г' : 'шт/уп', checked: false, replacedWith: '', isManual: true });
       document.getElementById('newShopItemName').value = ''; document.getElementById('newShopItemAmount').value = '';
       saveState(); renderShoppingTab();
     }
@@ -1623,32 +1792,177 @@
     function recalculateSmartShoppingList() {
       const aggregated = {};
       const allProfileIds = Object.keys(state.profiles);
-      Object.values(state.weeklyMenu).forEach(dayPlan => {
+      const startIdx = Math.max(0, DAYS.findIndex(d => d.id === (state.shopStartDay || 'mon')));
+      const reserveMult = state.shopReserve ? 1.10 : 1.0;
+
+      DAYS.slice(startIdx).forEach(d => {
+        const dayPlan = state.weeklyMenu[d.id];
+        if (!dayPlan) return;
         ['breakfast', 'lunch', 'dinner', 'snack'].forEach(slot => {
           const meal = dayPlan[slot];
+          if (!meal || meal.cooked) return;
           const skipped = meal.skippedBy || [];
           let totalFactor = 0;
           allProfileIds.forEach(uid => { if (!skipped.includes(uid)) totalFactor += PORTION_MULTIPLIERS[state.profiles[uid].portion] || 1.0; });
-          (meal.ingredients || []).forEach(ing => {
+          getEffectiveMealIngredients(meal).forEach(ing => {
             if (!aggregated[ing.name]) aggregated[ing.name] = { name: ing.name, dept: ing.dept || 'Бакалея', rawG: 0 };
-            aggregated[ing.name].rawG += Math.round(ing.rawG * totalFactor);
+            aggregated[ing.name].rawG += Math.round((ing.rawG || 0) * totalFactor * reserveMult);
           });
         });
       });
 
-      const newList = [];
+      const prevStateMap = {};
+      state.shoppingList.forEach(old => {
+        if (!old.isManual) prevStateMap[old.name] = { checked: !!old.checked, replacedWith: old.replacedWith || '' };
+      });
+      const manualItems = state.shoppingList.filter(i => i.isManual);
+
+      const newList = [...manualItems];
       Object.values(aggregated).forEach(item => {
-        const inFridge = state.fridge.find(f => f.name.toLowerCase().includes(item.name.toLowerCase().split(' ')[0]));
-        const fridgeAmount = inFridge ? inFridge.amount : 0;
+        const fridgeAmount = getFridgeStockForIngredient(item.name);
         const needed = Math.max(0, item.rawG - fridgeAmount);
         if (needed > 0) {
+          const prev = prevStateMap[item.name] || { checked: false, replacedWith: '' };
           newList.push({
-            id: 'sh_calc_' + Math.random().toString(36).slice(2, 8), name: item.name, dept: item.dept, rawAmount: needed,
-            unit: fridgeAmount > 0 ? `г (учтено ${fridgeAmount}г дома)` : 'г (сырой/сухой вес)', checked: false, replacedWith: ''
+            id: 'sh_calc_' + Math.random().toString(36).slice(2, 8),
+            name: item.name,
+            dept: item.dept,
+            rawAmount: Math.round(needed / 5) * 5 || needed,
+            unit: fridgeAmount > 0 ? `г (учтено ${fridgeAmount}г дома)` : 'г (сырой вес)',
+            checked: prev.checked,
+            replacedWith: prev.replacedWith,
+            isManual: false
           });
         }
       });
       state.shoppingList = newList; saveState(); renderShoppingTab();
+    }
+
+    // ================= МОДАЛКА «ПРИГОТОВИЛ» (СПИСАНИЕ ИЗ ЗАПАСОВ) =================
+    let cookCtx = { dayId: null, slot: null, recipeId: null, selectedMembers: [], portions: 0, ingredients: [] };
+
+    function openCookConfirmModal(dayId, slot, recipeId = null) {
+      let meal = null;
+      if (dayId && slot) meal = state.weeklyMenu[dayId][slot];
+      else if (recipeId) meal = state.recipeBook.find(r => r.id === recipeId);
+      if (!meal) return;
+
+      const skipped = meal.skippedBy || [];
+      const activeMembers = Object.values(state.profiles).filter(p => !skipped.includes(p.id)).map(p => p.id);
+      const defaultPortions = Number(activeMembers.reduce((sum, uid) => sum + (PORTION_MULTIPLIERS[state.profiles[uid].portion] || 1.0), 0).toFixed(2));
+
+      cookCtx = {
+        dayId,
+        slot,
+        recipeId,
+        selectedMembers: activeMembers,
+        portions: defaultPortions,
+        ingredients: getEffectiveMealIngredients(meal)
+      };
+
+      document.getElementById('cookTitle').textContent = meal.title;
+      renderCookConfirmModal();
+      document.getElementById('cookConfirmModal').classList.remove('hidden');
+    }
+
+    function toggleCookMember(uid) {
+      const idx = cookCtx.selectedMembers.indexOf(uid);
+      if (idx === -1) cookCtx.selectedMembers.push(uid);
+      else cookCtx.selectedMembers.splice(idx, 1);
+      cookCtx.portions = Number(cookCtx.selectedMembers.reduce((sum, id) => sum + (PORTION_MULTIPLIERS[state.profiles[id].portion] || 1.0), 0).toFixed(2));
+      renderCookConfirmModal();
+    }
+
+    function setCookPortions(val) {
+      cookCtx.portions = Math.max(0, Number(Number(val).toFixed(2)) || 0);
+      renderCookConfirmModal();
+    }
+
+    function adjustCookPortions(delta) {
+      setCookPortions(cookCtx.portions + delta);
+    }
+
+    function onCookPortionsManualChange(val) {
+      cookCtx.portions = Math.max(0, Number(val) || 0);
+      updateCookIngredientInputsOnly();
+    }
+
+    function updateCookIngredientInputsOnly() {
+      cookCtx.ingredients.forEach((ing, idx) => {
+        const inp = document.getElementById(`cookIngInput_${idx}`);
+        if (inp) {
+          const calc = Math.round((ing.rawG || 0) * cookCtx.portions / 5) * 5 || Math.round((ing.rawG || 0) * cookCtx.portions);
+          inp.value = calc;
+        }
+      });
+    }
+
+    function renderCookConfirmModal() {
+      document.getElementById('cookMembersChips').innerHTML = Object.values(state.profiles).map(p => {
+        const active = cookCtx.selectedMembers.includes(p.id);
+        return `
+          <button onclick="toggleCookMember('${p.id}')" class="rounded-xl px-2.5 py-2 border text-left flex items-center gap-2 transition ${
+            active ? 'bg-emerald-500/20 border-emerald-500/50 text-white' : 'bg-slate-950/60 border-slate-800 text-slate-500 opacity-65'
+          }">
+            <span class="text-base">${p.avatar}</span>
+            <div class="min-w-0">
+              <div class="text-xs font-bold truncate">${p.name}</div>
+              <div class="text-[10px] ${active ? 'text-emerald-300' : 'text-slate-500'}">${p.portion} (×${PORTION_MULTIPLIERS[p.portion]})</div>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('cookPortionsInput').value = cookCtx.portions;
+
+      const allMembersSum = Number(Object.values(state.profiles).reduce((s, p) => s + (PORTION_MULTIPLIERS[p.portion] || 1.0), 0).toFixed(2));
+      const presets = [
+        { label: '1 порция', val: 1 },
+        { label: '2 порции', val: 2 },
+        { label: `На всех (×${allMembersSum})`, val: allMembersSum }
+      ];
+      document.getElementById('cookPortionPresets').innerHTML = presets.map(pr => `
+        <button onclick="setCookPortions(${pr.val})" class="px-2.5 py-1 rounded-xl text-[11px] font-semibold border transition ${
+          Math.abs(cookCtx.portions - pr.val) < 0.05 ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold' : 'bg-slate-950 text-slate-300 border-slate-700 hover:border-emerald-500/40'
+        }">${pr.label}</button>
+      `).join('');
+
+      const listEl = document.getElementById('cookIngredientsList');
+      if (cookCtx.ingredients.length === 0) {
+        listEl.innerHTML = '<div class="text-xs text-slate-400">Для этого блюда нет сырых ингредиентов для списания.</div>';
+        return;
+      }
+
+      listEl.innerHTML = cookCtx.ingredients.map((ing, idx) => {
+        const calc = Math.round((ing.rawG || 0) * cookCtx.portions / 5) * 5 || Math.round((ing.rawG || 0) * cookCtx.portions);
+        const inFridge = getFridgeStockForIngredient(ing.name);
+        return `
+          <div class="flex items-center justify-between gap-2 bg-slate-950/70 px-3 py-2 rounded-xl border border-slate-800">
+            <div class="min-w-0 flex-1">
+              <div class="text-xs font-semibold text-white truncate">${ing.name}</div>
+              <div class="text-[10px] ${inFridge > 0 ? 'text-emerald-400' : 'text-slate-500'}">${inFridge > 0 ? `В запасах: ${inFridge} г` : 'Нет в запасах'}</div>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <input id="cookIngInput_${idx}" type="number" min="0" value="${calc}" class="w-20 text-right bg-slate-900 border border-slate-700 rounded-xl px-2 py-1 text-xs font-extrabold text-amber-300" />
+              <span class="text-[11px] text-slate-400">г</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function confirmCookAndDeduct() {
+      cookCtx.ingredients.forEach((ing, idx) => {
+        const inp = document.getElementById(`cookIngInput_${idx}`);
+        const grams = inp ? Number(inp.value) : 0;
+        if (grams > 0) deductFromFridge(ing.name, grams);
+      });
+      if (cookCtx.dayId && cookCtx.slot && state.weeklyMenu[cookCtx.dayId]?.[cookCtx.slot]) {
+        state.weeklyMenu[cookCtx.dayId][cookCtx.slot].cooked = true;
+      }
+      closeModal('cookConfirmModal');
+      saveState();
+      renderAll();
     }
 
     function openFinishShoppingModal() { document.getElementById('finishShoppingModal').classList.remove('hidden'); }
