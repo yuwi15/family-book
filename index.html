@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Семейная Книга — Меню, Книга рецептов, БЖУ и Дела</title>
   <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#FAF8F5" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -16,7 +16,7 @@
       theme: {
         extend: {
           colors: {
-            slate: { 850: '#162033', 950: '#090d16' }
+            slate: { 850: '#16161A', 950: '#0B0B0D' }
           }
         }
       }
@@ -24,6 +24,40 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    :root {
+      --bg-app: #FAF8F5;
+      --bg-card: #FFFFFF;
+      --bg-sub: #F3EFEA;
+      --bg-input: #F6F3EE;
+      --border-card: rgba(24, 24, 27, 0.08);
+      --border-sub: rgba(24, 24, 27, 0.11);
+      --text-main: #18181B;
+      --text-muted: #71717A;
+      --accent: #0ABAB5;
+      --accent-hover: #089A95;
+      --accent-soft: rgba(10, 186, 181, 0.13);
+      --accent-text: #067A76;
+      --accent-on: #FFFFFF;
+      --shadow-card: 0 4px 20px rgba(24, 24, 27, 0.05);
+      --nav-bg: rgba(255, 255, 255, 0.92);
+    }
+    html.dark {
+      --bg-app: #0B0B0D;
+      --bg-card: #16161A;
+      --bg-sub: #1E1E24;
+      --bg-input: #141418;
+      --border-card: rgba(255, 255, 255, 0.06);
+      --border-sub: rgba(255, 255, 255, 0.09);
+      --text-main: #F4F4F5;
+      --text-muted: #9CA3AF;
+      --accent: #6EE7B7;
+      --accent-hover: #34D399;
+      --accent-soft: rgba(110, 231, 183, 0.14);
+      --accent-text: #6EE7B7;
+      --accent-on: #0B0B0D;
+      --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.35);
+      --nav-bg: rgba(22, 22, 26, 0.92);
+    }
     html, body {
       position: fixed;
       inset: 0;
@@ -35,41 +69,89 @@
     }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #090d16;
-      color: #f8fafc;
+      background-color: var(--bg-app);
+      color: var(--text-main);
       -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
     .glass {
-      background: rgba(22, 32, 51, 0.85);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow-card);
     }
+    nav.glass {
+      background: var(--nav-bg);
+      backdrop-filter: blur(16px);
+      box-shadow: none;
+    }
+    /* Тематический маппинг для чистого Тиффани (светлый) и Графита (тёмный) */
+    .bg-slate-900, .bg-slate-900\/90, .bg-slate-900\/80, .bg-slate-900\/70,
+    .bg-slate-950, .bg-slate-950\/80, .bg-slate-950\/70, .bg-slate-950\/60,
+    .bg-slate-800, .bg-slate-800\/80 {
+      background-color: var(--bg-sub) !important;
+    }
+    .border-slate-800, .border-slate-800\/80, .border-slate-800\/90, .border-slate-800\/60,
+    .border-slate-700 {
+      border-color: var(--border-sub) !important;
+    }
+    .text-white, .text-slate-200, .text-slate-300 {
+      color: var(--text-main) !important;
+    }
+    .text-slate-400, .text-slate-500 {
+      color: var(--text-muted) !important;
+    }
+    input, select, textarea {
+      background-color: var(--bg-input) !important;
+      color: var(--text-main) !important;
+      border-color: var(--border-sub) !important;
+    }
+    .bg-emerald-500 {
+      background-color: var(--accent) !important;
+      color: var(--accent-on) !important;
+    }
+    .bg-emerald-500 * { color: var(--accent-on) !important; }
+    .hover\:bg-emerald-400:hover { background-color: var(--accent-hover) !important; }
+    .text-emerald-400, .text-emerald-300 { color: var(--accent-text) !important; }
+    .bg-emerald-500\/15, .bg-emerald-500\/20, .bg-emerald-500\/10 { background-color: var(--accent-soft) !important; }
+    .border-emerald-500\/30, .border-emerald-500\/40, .border-emerald-500\/50 { border-color: var(--accent) !important; }
+    html:not(.dark) .bg-indigo-500 { color: #FFFFFF !important; }
+    html:not(.dark) .bg-rose-500 { color: #FFFFFF !important; }
+    html:not(.dark) .text-indigo-300, html:not(.dark) .text-indigo-200 { color: #4338CA !important; }
+    html:not(.dark) .text-amber-300, html:not(.dark) .text-amber-400, html:not(.dark) .text-amber-200 { color: #B45309 !important; }
+    html:not(.dark) .text-amber-100\/90, html:not(.dark) .text-amber-100 { color: #78350F !important; }
+    html:not(.dark) .text-rose-300, html:not(.dark) .text-rose-200 { color: #BE123C !important; }
+    html:not(.dark) .text-sky-400, html:not(.dark) .text-sky-300 { color: #0369A1 !important; }
+    html:not(.dark) .text-purple-400 { color: #7E22CE !important; }
+    html:not(.dark) .text-indigo-100 { color: #312E81 !important; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="flex flex-col h-full w-full overflow-hidden selection:bg-emerald-500 selection:text-white" style="padding-top: env(safe-area-inset-top);">
 
-  <main class="flex-1 min-h-0 overflow-y-auto w-full max-w-xl mx-auto px-4 py-4 pb-8 space-y-5" style="-webkit-overflow-scrolling: touch;">
+  <main class="flex-1 min-h-0 overflow-y-auto w-full max-w-xl mx-auto px-4 py-4 pb-8 space-y-4" style="-webkit-overflow-scrolling: touch;">
 
-  <!-- ВЕРХНЯЯ ПАНЕЛЬ: БЫСТРЫЙ ВХОД ПО ФЕЙСУ + РЕЖИМ ШЕФА -->
-  <header class="glass rounded-3xl px-4 py-3 border border-slate-800/80" style="padding-top: max(12px, env(safe-area-inset-top));">
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ: БЫСТРЫЙ ВХОД + ТЕМА + ШЕФ -->
+  <header class="glass rounded-3xl px-3.5 py-2.5" style="padding-top: max(10px, env(safe-area-inset-top));">
     <div class="max-w-xl mx-auto flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <span class="text-2xl">📖</span>
-        <div>
-          <h1 class="text-sm font-bold tracking-tight text-white leading-none">Семейная Книга</h1>
-          <p id="activeUserSubtitle" class="text-[11px] text-emerald-400 font-medium mt-0.5">Максим</p>
-          <p id="cloudSyncBadge" class="text-[9px] text-slate-400 leading-none mt-0.5">⚪ Локально</p>
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="text-xl shrink-0">📖</span>
+        <div class="min-w-0">
+          <h1 class="text-sm font-bold tracking-tight leading-none truncate">Семейная Книга</h1>
+          <p id="activeUserSubtitle" class="text-[11px] text-emerald-400 font-medium mt-0.5 truncate">Максим</p>
+          <p id="cloudSyncBadge" class="text-[9px] text-slate-400 leading-none mt-0.5 truncate">⚪ Локально</p>
         </div>
       </div>
 
-      <div id="profileSwitcher" class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-2xl border border-slate-800"></div>
+      <div id="profileSwitcher" class="flex items-center gap-0.5 bg-slate-900/90 p-1 rounded-2xl border border-slate-800 shrink-0"></div>
 
-      <button id="chefToggleBtn" onclick="toggleChefMode()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition border">
-        <span>👨‍🍳</span>
-        <span class="hidden sm:inline">Шеф</span>
-      </button>
+      <div class="flex items-center gap-1 shrink-0">
+        <button id="themeToggleBtn" onclick="toggleTheme()" title="Сменить тему" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm transition">☀️</button>
+        <button id="chefToggleBtn" onclick="toggleChefMode()" class="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-semibold transition border">
+          <span>👨‍🍳</span>
+          <span class="hidden sm:inline">Шеф</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -100,34 +182,34 @@
           </select>
         </div>
 
-        <div class="bg-slate-900/80 rounded-2xl p-3 border border-slate-800/80">
-          <div class="flex justify-between items-baseline mb-1.5">
-            <span class="text-xs text-slate-400">Калории за день</span>
-            <div>
-              <span id="kcalEaten" class="text-lg font-extrabold text-white">0</span>
-              <span class="text-xs text-slate-400"> / <span id="kcalTarget">2500</span> ккал</span>
+        <div class="bg-slate-900/80 rounded-2xl p-3.5 border border-slate-800/80 flex items-center gap-4">
+          <div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+            <svg class="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r="38" fill="none" stroke="currentColor" stroke-width="8" class="text-slate-400 opacity-20" />
+              <circle id="kcalRingArc" cx="48" cy="48" r="38" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76" style="transition: stroke-dashoffset 0.45s ease;" />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center leading-tight">
+              <span id="kcalEaten" class="text-base font-extrabold text-white">0</span>
+              <span class="text-[10px] text-slate-400">/ <span id="kcalTarget">2500</span></span>
             </div>
           </div>
-          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-            <div id="kcalBar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300" style="width: 0%"></div>
-          </div>
-          <div id="kcalRemainingText" class="text-[11px] text-slate-400 mt-1.5"></div>
-        </div>
 
-        <div class="grid grid-cols-3 gap-2.5">
-          <div class="bg-slate-900/70 rounded-2xl p-2.5 border border-slate-800/70">
-            <div class="flex justify-between text-[11px] text-slate-400"><span>Белки</span><span class="font-semibold text-sky-400"><span id="pEaten">0</span>/<span id="pTarget">150</span>г</span></div>
-            <div class="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden"><div id="pBar" class="h-full bg-sky-400 transition-all" style="width:0%"></div></div>
-          </div>
-          <div class="bg-slate-900/70 rounded-2xl p-2.5 border border-slate-800/70">
-            <div class="flex justify-between text-[11px] text-slate-400"><span>Жиры</span><span class="font-semibold text-amber-400"><span id="fEaten">0</span>/<span id="fTarget">80</span>г</span></div>
-            <div class="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden"><div id="fBar" class="h-full bg-amber-400 transition-all" style="width:0%"></div></div>
-          </div>
-          <div class="bg-slate-900/70 rounded-2xl p-2.5 border border-slate-800/70">
-            <div class="flex justify-between text-[11px] text-slate-400"><span>Угли</span><span class="font-semibold text-purple-400"><span id="cEaten">0</span>/<span id="cTarget">280</span>г</span></div>
-            <div class="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden"><div id="cBar" class="h-full bg-purple-400 transition-all" style="width:0%"></div></div>
+          <div class="flex-1 min-w-0 space-y-2">
+            <div>
+              <div class="flex justify-between text-[11px] text-slate-400"><span>Белки</span><span class="font-semibold text-sky-400"><span id="pEaten">0</span>/<span id="pTarget">150</span>г</span></div>
+              <div class="w-full h-1.5 bg-slate-400/20 rounded-full mt-1 overflow-hidden"><div id="pBar" class="h-full bg-sky-500 transition-all" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px] text-slate-400"><span>Жиры</span><span class="font-semibold text-amber-400"><span id="fEaten">0</span>/<span id="fTarget">80</span>г</span></div>
+              <div class="w-full h-1.5 bg-slate-400/20 rounded-full mt-1 overflow-hidden"><div id="fBar" class="h-full bg-amber-500 transition-all" style="width:0%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px] text-slate-400"><span>Угли</span><span class="font-semibold text-purple-400"><span id="cEaten">0</span>/<span id="cTarget">280</span>г</span></div>
+              <div class="w-full h-1.5 bg-slate-400/20 rounded-full mt-1 overflow-hidden"><div id="cBar" class="h-full bg-purple-500 transition-all" style="width:0%"></div></div>
+            </div>
           </div>
         </div>
+        <div id="kcalRemainingText" class="text-[11px] text-slate-400 px-1"></div>
 
         <div class="grid grid-cols-2 gap-2 pt-1">
           <button onclick="openAiMacroDonorModal()" class="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-2xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold transition">
@@ -174,7 +256,8 @@
         <!-- Дни недели (для подвкладки week) -->
         <div id="weekDaysTabs" class="flex gap-1.5 overflow-x-auto no-scrollbar pt-1"></div>
 
-        <!-- Фильтры категорий (для подвкладки book) -->
+        <!-- Поиск и фильтры категорий (для подвкладки book) -->
+        <input id="bookSearchInput" type="text" placeholder="🔍 Поиск рецепта или продукта (напр. творог, лаваш)..." oninput="setBookSearch(this.value)" class="hidden w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-400" />
         <div id="bookCategoryTabs" class="hidden flex gap-1.5 overflow-x-auto no-scrollbar pt-1"></div>
       </div>
 
@@ -225,8 +308,8 @@
         </div>
 
         <div class="grid grid-cols-12 gap-2 pt-1">
-          <input id="newShopItemName" type="text" placeholder="Добавить продукт (напр. Молоко)..." class="col-span-12 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white min-w-0" />
-          <input id="newShopItemAmount" type="number" placeholder="Грамм/шт" class="col-span-4 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white min-w-0" />
+          <input id="newShopItemName" type="text" onkeydown="if(event.key==='Enter') addManualShoppingItem()" placeholder="Добавить продукт (напр. Молоко)..." class="col-span-12 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white min-w-0" />
+          <input id="newShopItemAmount" type="number" onkeydown="if(event.key==='Enter') addManualShoppingItem()" placeholder="Грамм/шт" class="col-span-4 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white min-w-0" />
           <select id="newShopItemDept" class="col-span-6 bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-xs text-slate-200 min-w-0">
             <option value="Мясо и птица">🥩 Мясо</option><option value="Рыба">🐟 Рыба</option>
             <option value="Молочка и яйца">🧀 Молочка</option><option value="Овощи и фрукты">🥦 Овощи</option><option value="Бакалея">🌾 Бакалея</option>
@@ -254,9 +337,9 @@
         <div id="aiFridgeAdviceBox" class="hidden bg-indigo-500/15 border border-indigo-500/30 rounded-2xl p-3 text-xs text-indigo-100"></div>
 
         <div class="grid grid-cols-12 gap-2 pt-1">
-          <input id="newFridgeName" type="text" placeholder="Продукт..." class="col-span-6 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
-          <input id="newFridgeAmount" type="number" placeholder="Грамм" class="col-span-3 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" />
-          <input id="newFridgeShelfDays" type="number" placeholder="Дней" class="col-span-3 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" />
+          <input id="newFridgeName" type="text" onkeydown="if(event.key==='Enter') addManualFridgeItem()" placeholder="Продукт..." class="col-span-6 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+          <input id="newFridgeAmount" type="number" onkeydown="if(event.key==='Enter') addManualFridgeItem()" placeholder="Грамм" class="col-span-3 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" />
+          <input id="newFridgeShelfDays" type="number" onkeydown="if(event.key==='Enter') addManualFridgeItem()" placeholder="Дней" class="col-span-3 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" />
         </div>
         <button onclick="addManualFridgeItem()" class="w-full py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">
           + Добавить в холодильник
@@ -268,13 +351,14 @@
 
     <!-- ==================== ВКЛАДКА 5: БЮДЖЕТ ==================== -->
     <section id="tab-budget" class="space-y-4 hidden">
+      <button onclick="switchTab('more')" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 px-1">← Назад в «Ещё»</button>
       <div class="glass rounded-3xl p-4 space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-base font-bold text-white">💸 Семейный бюджет на еду</h2>
             <p class="text-xs text-slate-400">Контроль чеков из супермаркетов и перекусов вне дома за месяц</p>
           </div>
-          <span class="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 text-xs font-bold border border-emerald-500/30">Ноябрь 2026</span>
+          <span id="budgetMonthBadge" class="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-300 text-xs font-bold border border-emerald-500/30">Месяц</span>
         </div>
 
         <div class="grid grid-cols-3 gap-2.5">
@@ -295,8 +379,8 @@
         <div class="bg-slate-900/70 rounded-2xl p-3 border border-slate-800 space-y-2.5">
           <div class="text-xs font-bold text-slate-300">+ Записать чек или расход</div>
           <div class="grid grid-cols-2 gap-2">
-            <input id="budgetStoreInput" type="text" placeholder="Магазин / место" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
-            <input id="budgetAmountInput" type="number" placeholder="Сумма в ₽" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+            <input id="budgetStoreInput" type="text" onkeydown="if(event.key==='Enter') addBudgetEntry()" placeholder="Магазин / место" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+            <input id="budgetAmountInput" type="number" onkeydown="if(event.key==='Enter') addBudgetEntry()" placeholder="Сумма в ₽" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
           </div>
           <div class="flex items-center justify-between gap-2">
             <select id="budgetCategoryInput" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 flex-1">
@@ -315,6 +399,7 @@
 
     <!-- ==================== ВКЛАДКА 6: ПРОГРЕСС ==================== -->
     <section id="tab-progress" class="space-y-4 hidden">
+      <button onclick="switchTab('more')" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 px-1">← Назад в «Ещё»</button>
       <div class="glass rounded-3xl p-4 space-y-3">
         <div class="flex items-center gap-3">
           <div id="profileAvatarBig" class="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl"></div>
@@ -331,6 +416,13 @@
           <button id="btnWalkedToday" onclick="toggleDailyActivity('walked')" class="py-3 px-3 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2 transition">
             <span>🚶</span><span id="lblWalkedToday">Сегодня гулял</span>
           </button>
+        </div>
+        <div class="flex items-center justify-between gap-2 pt-1 text-[11px]">
+          <span class="text-slate-400">Забыл отметить вчера?</span>
+          <div class="flex items-center gap-1.5">
+            <button id="btnTrainedYesterday" onclick="toggleDailyActivity('trained', true)" class="px-2.5 py-1 rounded-xl border text-[11px] font-semibold transition">🏋️ Вчера</button>
+            <button id="btnWalkedYesterday" onclick="toggleDailyActivity('walked', true)" class="px-2.5 py-1 rounded-xl border text-[11px] font-semibold transition">🚶 Вчера</button>
+          </div>
         </div>
       </div>
 
@@ -358,7 +450,7 @@
 
         <div id="weeklyWeightBody" class="space-y-3">
           <div class="flex gap-2">
-            <input id="weeklyWeightInput" type="number" step="0.1" placeholder="Новый вес (кг), напр. 78.4" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
+            <input id="weeklyWeightInput" type="number" step="0.1" onkeydown="if(event.key==='Enter') logWeeklyWeight()" placeholder="Новый вес (кг), напр. 78.4" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white" />
             <button onclick="logWeeklyWeight()" class="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs">Записать вес</button>
           </div>
           <div id="weightHistoryChart" class="bg-slate-900/80 rounded-2xl p-3 border border-slate-800 space-y-2"></div>
@@ -422,6 +514,7 @@
 
     <!-- ==================== ВКЛАДКА 7: ЗАДАЧИ ПО ДОМУ ==================== -->
     <section id="tab-tasks" class="space-y-4 hidden">
+      <button onclick="switchTab('more')" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 px-1">← Назад в «Ещё»</button>
       <div class="glass rounded-3xl p-4 space-y-3">
         <div class="flex items-center justify-between">
           <div>
@@ -431,7 +524,7 @@
         </div>
 
         <div class="space-y-2 pt-1">
-          <input id="newTaskTitle" type="text" placeholder="Что нужно сделать по дому? (напр. Помыть холодильник)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+          <input id="newTaskTitle" type="text" onkeydown="if(event.key==='Enter') addTaskEntry()" placeholder="Что нужно сделать по дому? (напр. Помыть холодильник)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
           <div class="flex flex-wrap items-center gap-2">
             <select id="newTaskAssignee" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 flex-1">
               <option value="all">👨‍👩‍👧‍👦 Для всех</option>
@@ -456,6 +549,46 @@
       </div>
 
       <div id="tasksListContainer" class="space-y-2.5"></div>
+    </section>
+    <!-- ==================== ВКЛАДКА 8: ЕЩЁ (БЮДЖЕТ, ЗАДАЧИ, ПРОГРЕСС) ==================== -->
+    <section id="tab-more" class="space-y-3 hidden">
+      <div class="glass rounded-3xl p-4 space-y-1">
+        <h2 class="text-base font-bold text-white">Семья и настройки</h2>
+        <p class="text-xs text-slate-400">Финансы, домашние дела, твой прогресс и облако</p>
+      </div>
+
+      <button onclick="switchTab('tasks')" class="w-full glass rounded-3xl p-4 flex items-center justify-between gap-3 text-left transition active:scale-[0.99]">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-500/15 flex items-center justify-center text-xl shrink-0">✅</div>
+          <div>
+            <div class="text-sm font-bold text-white">Семейные дела</div>
+            <div id="moreTasksSubtitle" class="text-xs text-slate-400 mt-0.5">Бытовые задачи по дому</div>
+          </div>
+        </div>
+        <span class="text-slate-400 text-sm">→</span>
+      </button>
+
+      <button onclick="switchTab('budget')" class="w-full glass rounded-3xl p-4 flex items-center justify-between gap-3 text-left transition active:scale-[0.99]">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-amber-500/15 flex items-center justify-center text-xl shrink-0">💸</div>
+          <div>
+            <div class="text-sm font-bold text-white">Семейный бюджет</div>
+            <div id="moreBudgetSubtitle" class="text-xs text-slate-400 mt-0.5">Чеки и траты на еду</div>
+          </div>
+        </div>
+        <span class="text-slate-400 text-sm">→</span>
+      </button>
+
+      <button onclick="switchTab('progress')" class="w-full glass rounded-3xl p-4 flex items-center justify-between gap-3 text-left transition active:scale-[0.99]">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-indigo-500/15 flex items-center justify-center text-xl shrink-0">📈</div>
+          <div>
+            <div class="text-sm font-bold text-white">Прогресс, тело и облако</div>
+            <div class="text-xs text-slate-400 mt-0.5">Тренировки, вес, КБЖУ и Supabase</div>
+          </div>
+        </div>
+        <span class="text-slate-400 text-sm">→</span>
+      </button>
     </section>
   </main>
 
@@ -528,6 +661,9 @@
 
       <button onclick="confirmCookAndDeduct()" class="w-full py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20">
         ✅ Приготовил — списать из Запасов
+      </button>
+      <button id="cookUnmarkBtn" onclick="unmarkCooked()" class="hidden w-full py-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/30 font-bold text-xs">
+        ↩️ Снять отметку «Приготовлено»
       </button>
     </div>
   </div>
@@ -737,22 +873,24 @@
     </div>
   </div>
 
-  <!-- НИЖНЯЯ НАВИГАЦИЯ -->
-  <nav class="shrink-0 z-40 glass border-t border-slate-800/90 px-1.5 py-1.5" style="padding-bottom: max(6px, env(safe-area-inset-bottom));">
-    <div class="max-w-xl mx-auto grid grid-cols-7 gap-0.5">
-      <button onclick="switchTab('today')" id="nav-today" class="flex flex-col items-center py-1.5 rounded-2xl text-emerald-400 font-semibold transition"><span class="text-base leading-none">🍽️</span><span class="text-[9px] mt-1">Сегодня</span></button>
-      <button onclick="switchTab('menu')" id="nav-menu" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-base leading-none">📅</span><span class="text-[9px] mt-1">Меню</span></button>
-      <button onclick="switchTab('shop')" id="nav-shop" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-base leading-none">🛒</span><span class="text-[9px] mt-1">Покупки</span></button>
-      <button onclick="switchTab('fridge')" id="nav-fridge" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-base leading-none">🧊</span><span class="text-[9px] mt-1">Запасы</span></button>
-      <button onclick="switchTab('budget')" id="nav-budget" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-base leading-none">💸</span><span class="text-[9px] mt-1">Бюджет</span></button>
-      <button onclick="switchTab('tasks')" id="nav-tasks" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-base leading-none">✅</span><span class="text-[9px] mt-1">Задачи</span></button>
-      <button onclick="switchTab('progress')" id="nav-progress" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-base leading-none">📈</span><span class="text-[9px] mt-1">Прогресс</span></button>
+  <!-- НИЖНЯЯ НАВИГАЦИЯ (5 ОСНОВНЫХ ВКЛАДОК) -->
+  <nav class="shrink-0 z-40 glass border-t border-slate-800/90 px-2 py-1.5" style="padding-bottom: max(6px, env(safe-area-inset-bottom));">
+    <div class="max-w-xl mx-auto grid grid-cols-5 gap-1">
+      <button onclick="switchTab('today')" id="nav-today" class="flex flex-col items-center py-1.5 rounded-2xl text-emerald-400 font-semibold transition"><span class="text-lg leading-none">🍽️</span><span class="text-[11px] mt-1">Сегодня</span></button>
+      <button onclick="switchTab('menu')" id="nav-menu" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-lg leading-none">📅</span><span class="text-[11px] mt-1">Меню</span></button>
+      <button onclick="switchTab('shop')" id="nav-shop" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-lg leading-none">🛒</span><span class="text-[11px] mt-1">Покупки</span></button>
+      <button onclick="switchTab('fridge')" id="nav-fridge" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-lg leading-none">🧊</span><span class="text-[11px] mt-1">Запасы</span></button>
+      <button onclick="switchTab('more')" id="nav-more" class="flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition"><span class="text-lg leading-none">✨</span><span class="text-[11px] mt-1">Ещё</span></button>
     </div>
   </nav>
 
   <script>
     const STORAGE_KEY = 'family_book_pwa_state_v1';
-    const TODAY_ISO = new Date().toISOString().slice(0, 10);
+    function getTodayISO() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    Object.defineProperty(window, 'TODAY_ISO', { get: getTodayISO });
     const PORTION_MULTIPLIERS = { S: 0.75, M: 1.0, L: 1.35 };
 
     const DAYS = [
@@ -894,7 +1032,8 @@
         ingredients: [
           { name: 'Тунец консервированный в с/с', rawG: 100, dept: 'Рыба' },
           { name: 'Яйца куриные', rawG: 85, dept: 'Молочка и яйца' },
-          { name: 'Огурцы и салатный микс', rawG: 150, dept: 'Овощи и фрукты' },
+          { name: 'Огурцы', rawG: 100, dept: 'Овощи и фрукты' },
+          { name: 'Салатный микс / зелень', rawG: 50, dept: 'Овощи и фрукты' },
           { name: 'Хлеб тостовый', rawG: 35, dept: 'Бакалея' }
         ],
         tips: 'Яйца вари ровно 8 минут на среднем кипении (желток будет нежным). Тост подсуши на сухой сковороде БЕЗ МАСЛА.',
@@ -931,7 +1070,8 @@
         collage: { S: '🥗 Овощи + 40г феты + 1 яйцо', M: '🥗 Салат + 60г феты + 2 яйца', L: '🥗 Большой салат + 80г феты + пита' },
         ingredients: [
           { name: 'Сыр Сиртаки / Фета', rawG: 60, dept: 'Молочка и яйца' },
-          { name: 'Огурцы и томаты', rawG: 200, dept: 'Овощи и фрукты' },
+          { name: 'Огурцы', rawG: 100, dept: 'Овощи и фрукты' },
+          { name: 'Томаты свежие', rawG: 100, dept: 'Овощи и фрукты' },
           { name: 'Яйца куриные', rawG: 110, dept: 'Молочка и яйца' },
           { name: 'Маслины без косточки', rawG: 25, dept: 'Бакалея' }
         ],
@@ -951,7 +1091,8 @@
           { name: 'Лаваш армянский тонкий', rawG: 70, dept: 'Бакалея' },
           { name: 'Куриное филе (запечённое/готовое)', rawG: 120, dept: 'Мясо и птица' },
           { name: 'Сыр лёгкий', rawG: 30, dept: 'Молочка и яйца' },
-          { name: 'Огурцы и томаты', rawG: 100, dept: 'Овощи и фрукты' },
+          { name: 'Огурцы', rawG: 50, dept: 'Овощи и фрукты' },
+          { name: 'Томаты свежие', rawG: 50, dept: 'Овощи и фрукты' },
           { name: 'Йогурт греческий', rawG: 30, dept: 'Молочка и яйца' }
         ],
         tips: 'Обжаривать строго на СУХОЙ сковороде БЕЗ МАСЛА на среднем огне (5 из 9), чтобы лаваш стал хрустящим, а не жирным.',
@@ -1007,9 +1148,11 @@
         ingredients: [
           { name: 'Говядина постная (или индейка)', rawG: 220, dept: 'Мясо и птица' },
           { name: 'Рис длиннозёрный (сухой)', rawG: 65, dept: 'Бакалея' },
-          { name: 'Лук и морковь', rawG: 80, dept: 'Овощи и фрукты' },
+          { name: 'Лук репчатый', rawG: 40, dept: 'Овощи и фрукты' },
+          { name: 'Морковь', rawG: 40, dept: 'Овощи и фрукты' },
           { name: 'Томатная паста', rawG: 25, dept: 'Бакалея' },
-          { name: 'Огурцы и томаты для салата', rawG: 120, dept: 'Овощи и фрукты' }
+          { name: 'Огурцы', rawG: 60, dept: 'Овощи и фрукты' },
+          { name: 'Томаты свежие', rawG: 60, dept: 'Овощи и фрукты' }
         ],
         tips: 'Мясо сначала прижарить на СИЛЬНОМ огне (чтобы запечатать соки), потом тушить на САМОМ СЛАБОМ огне под крышкой.',
         steps: [
@@ -1105,8 +1248,10 @@
           { name: 'Куриное филе/бедро', rawG: 220, dept: 'Мясо и птица' },
           { name: 'Лаваш армянский', rawG: 90, dept: 'Бакалея' },
           { name: 'Капуста свежая', rawG: 80, dept: 'Овощи и фрукты' },
-          { name: 'Огурцы и томаты', rawG: 110, dept: 'Овощи и фрукты' },
-          { name: 'Йогурт греческий + сметана', rawG: 50, dept: 'Молочка и яйца' },
+          { name: 'Огурцы', rawG: 55, dept: 'Овощи и фрукты' },
+          { name: 'Томаты свежие', rawG: 55, dept: 'Овощи и фрукты' },
+          { name: 'Йогурт греческий', rawG: 30, dept: 'Молочка и яйца' },
+          { name: 'Сметана 15%', rawG: 20, dept: 'Молочка и яйца' },
           { name: 'Сыр лёгкий', rawG: 25, dept: 'Молочка и яйца' }
         ],
         tips: 'Готовую скрученную шаурму поджаривать строго БЕЗ МАСЛА на сухой сковороде-гриль на среднем огне (5 из 9)!',
@@ -1244,7 +1389,8 @@
         variants: [{ id: 'base', name: 'Без выпечки', kcalDiff: 0, pDiff: 0, fDiff: 0, cDiff: 0 }],
         collage: { S: '🧁 Стаканчик 180г', M: '🧁 Стаканчик 230г с ягодами', L: '🧁 Большой стакан 300г' },
         ingredients: [
-          { name: 'Мягкий творог + йогурт', rawG: 170, dept: 'Молочка и яйца' },
+          { name: 'Мягкий творог 5%', rawG: 120, dept: 'Молочка и яйца' },
+          { name: 'Йогурт греческий', rawG: 50, dept: 'Молочка и яйца' },
           { name: 'Печенье / гранола', rawG: 25, dept: 'Бакалея' },
           { name: 'Ягоды', rawG: 40, dept: 'Овощи и фрукты' }
         ],
@@ -1394,11 +1540,12 @@
       if (!skipCloud) scheduleCloudPush();
     }
 
-    // ================= SUPABASE REALTIME SYNC (app_state) =================
+    // ================= SUPABASE REALTIME SYNC (по разделам в app_state) =================
     let sbClient = null;
     let sbChannel = null;
     let cloudPushTimer = null;
-    let lastCloudRevision = '';
+    const lastDomainRevisions = {};
+    const lastSyncedSnapshots = {};
 
     const SHARED_STATE_KEYS = [
       'profiles', 'recipeBook', 'weeklyMenu', 'eatenSlots', 'extraLogs',
@@ -1412,17 +1559,21 @@
       el.className = `text-[9px] leading-none mt-0.5 ${cls}`;
     }
 
-    function getSharedPayload() {
-      const payload = {};
-      SHARED_STATE_KEYS.forEach(k => { payload[k] = state[k]; });
-      return payload;
+    function snapshotCurrentDomains() {
+      SHARED_STATE_KEYS.forEach(k => {
+        lastSyncedSnapshots[k] = JSON.stringify(state[k]);
+      });
     }
 
     function applySharedPayload(payload) {
       if (!payload || typeof payload !== 'object') return;
       SHARED_STATE_KEYS.forEach(k => {
-        if (payload[k] !== undefined) state[k] = payload[k];
+        if (payload[k] !== undefined) {
+          state[k] = payload[k];
+          lastSyncedSnapshots[k] = JSON.stringify(state[k]);
+        }
       });
+      syncBuiltInRecipes();
       saveState(true);
       renderAll();
     }
@@ -1442,13 +1593,19 @@
         if (sbChannel) sbClient.removeChannel(sbChannel);
         sbChannel = sbClient
           .channel('family_book_sync')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'app_state', filter: 'id=eq.family_main' }, (payload) => {
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'app_state' }, (payload) => {
             const row = payload.new;
-            if (row && row.data && row.updated_at !== lastCloudRevision) {
-              lastCloudRevision = row.updated_at;
-              applySharedPayload(row.data);
-              setCloudBadge('🟢 Облако синхронизировано', 'text-emerald-400');
-            }
+            if (!row || !row.id || !row.id.startsWith('domain_')) return;
+            const k = row.id.slice(7);
+            if (!SHARED_STATE_KEYS.includes(k)) return;
+            if (row.updated_at && row.updated_at === lastDomainRevisions[k]) return;
+            lastDomainRevisions[k] = row.updated_at || '';
+            state[k] = row.data;
+            lastSyncedSnapshots[k] = JSON.stringify(state[k]);
+            if (k === 'recipeBook' || k === 'weeklyMenu') syncBuiltInRecipes();
+            saveState(true);
+            renderAll();
+            setCloudBadge('🟢 Облако синхронизировано', 'text-emerald-400');
           })
           .subscribe();
       } catch (e) {
@@ -1460,16 +1617,28 @@
     async function pullFromSupabase(showToast = false) {
       if (!sbClient) return;
       try {
-        const { data, error } = await sbClient.from('app_state').select('data, updated_at').eq('id', 'family_main').maybeSingle();
+        const { data: rows, error } = await sbClient.from('app_state').select('id, data, updated_at');
         if (error) throw error;
-        if (data && data.data) {
-          lastCloudRevision = data.updated_at || '';
-          applySharedPayload(data.data);
+        const domainRows = (rows || []).filter(r => r.id && r.id.startsWith('domain_'));
+        if (domainRows.length > 0) {
+          domainRows.forEach(r => {
+            const k = r.id.slice(7);
+            if (SHARED_STATE_KEYS.includes(k) && r.data !== undefined) {
+              state[k] = r.data;
+              lastDomainRevisions[k] = r.updated_at || '';
+            }
+          });
+          syncBuiltInRecipes();
+          snapshotCurrentDomains();
+          saveState(true);
+          renderAll();
           setCloudBadge('🟢 Облако синхронизировано', 'text-emerald-400');
           if (showToast) alert('Данные подтянуты из облака!');
         } else {
-          await pushToSupabase();
-          if (showToast) alert('Облако инициализировано твоими данными!');
+          const legacy = (rows || []).find(r => r.id === 'family_main');
+          if (legacy && legacy.data) applySharedPayload(legacy.data);
+          await pushToSupabase(true);
+          if (showToast) alert('Облако инициализировано по разделам!');
         }
       } catch (e) {
         console.error('Supabase pull error:', e);
@@ -1482,19 +1651,27 @@
       if (!sbClient) return;
       clearTimeout(cloudPushTimer);
       setCloudBadge('🟡 Сохраняю в облако...', 'text-amber-300');
-      cloudPushTimer = setTimeout(pushToSupabase, 600);
+      cloudPushTimer = setTimeout(() => pushToSupabase(false), 500);
     }
 
-    async function pushToSupabase() {
+    async function pushToSupabase(forceAll = false) {
       if (!sbClient) return;
       try {
         const nowIso = new Date().toISOString();
-        lastCloudRevision = nowIso;
-        const { error } = await sbClient.from('app_state').upsert({
-          id: 'family_main',
-          data: getSharedPayload(),
-          updated_at: nowIso
+        const rowsToUpsert = [];
+        SHARED_STATE_KEYS.forEach(k => {
+          const snap = JSON.stringify(state[k]);
+          if (forceAll || snap !== lastSyncedSnapshots[k]) {
+            lastSyncedSnapshots[k] = snap;
+            lastDomainRevisions[k] = nowIso;
+            rowsToUpsert.push({ id: `domain_${k}`, data: state[k], updated_at: nowIso });
+          }
         });
+        if (rowsToUpsert.length === 0) {
+          setCloudBadge('🟢 Облако синхронизировано', 'text-emerald-400');
+          return;
+        }
+        const { error } = await sbClient.from('app_state').upsert(rowsToUpsert);
         if (error) throw error;
         setCloudBadge('🟢 Облако синхронизировано', 'text-emerald-400');
       } catch (e) {
@@ -1781,13 +1958,40 @@
     function selectProfile(userId) { state.activeUserId = userId; saveState(); renderAll(); }
     function toggleChefMode() { state.chefMode = !state.chefMode; saveState(); renderAll(); }
 
+    function applyTheme() {
+      const isDark = state.theme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      const btn = document.getElementById('themeToggleBtn');
+      if (btn) btn.textContent = isDark ? '🌙' : '☀️';
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', isDark ? '#0B0B0D' : '#FAF8F5');
+    }
+
+    function toggleTheme() {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      saveState(true);
+      applyTheme();
+    }
+
+    function renderMoreTab() {
+      const openTasks = (state.tasks || []).filter(t => !t.done).length;
+      const tSub = document.getElementById('moreTasksSubtitle');
+      if (tSub) tSub.textContent = openTasks > 0 ? `Активных дел: ${openTasks}` : 'Все дела сделаны';
+    }
+
     function switchTab(tabId) {
       state.activeTab = tabId;
-      saveState();
-      ['today', 'menu', 'shop', 'fridge', 'budget', 'tasks', 'progress'].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tabId);
+      saveState(true);
+      const allSections = ['today', 'menu', 'shop', 'fridge', 'more', 'budget', 'tasks', 'progress'];
+      const navTab = ['budget', 'tasks', 'progress'].includes(tabId) ? 'more' : tabId;
+      allSections.forEach(t => {
+        const sec = document.getElementById(`tab-${t}`);
+        if (sec) sec.classList.toggle('hidden', t !== tabId);
+      });
+      ['today', 'menu', 'shop', 'fridge', 'more'].forEach(t => {
         const nav = document.getElementById(`nav-${t}`);
-        nav.className = t === tabId
+        if (!nav) return;
+        nav.className = t === navTab
           ? 'flex flex-col items-center py-1.5 rounded-2xl text-emerald-400 font-bold bg-emerald-500/10 transition'
           : 'flex flex-col items-center py-1.5 rounded-2xl text-slate-400 hover:text-slate-200 transition';
       });
@@ -1843,7 +2047,9 @@
       document.getElementById('cEaten').textContent = totalC;
       document.getElementById('cTarget').textContent = user.targetC;
 
-      document.getElementById('kcalBar').style.width = `${Math.min(100, Math.round((totalKcal / user.targetKcal) * 100))}%`;
+      const kcalPct = Math.min(100, Math.round((totalKcal / Math.max(1, user.targetKcal)) * 100));
+      const ringArc = document.getElementById('kcalRingArc');
+      if (ringArc) ringArc.style.strokeDashoffset = (238.76 - (238.76 * kcalPct) / 100).toFixed(2);
       document.getElementById('pBar').style.width = `${Math.min(100, Math.round((totalP / user.targetP) * 100))}%`;
       document.getElementById('fBar').style.width = `${Math.min(100, Math.round((totalF / user.targetF) * 100))}%`;
       document.getElementById('cBar').style.width = `${Math.min(100, Math.round((totalC / user.targetC) * 100))}%`;
@@ -1855,9 +2061,9 @@
 
       const slotMeta = {
         breakfast: { icon: '🍳', label: 'Завтрак' },
-        lunch: { icon: '🥗', label: 'Обед (лёгкий)' },
-        dinner: { icon: '🌙', label: 'Ужин (ГЛАВНЫЙ ПРИЁМ)' },
-        snack: { icon: '🍌', label: 'Перекус / Десерт' }
+        lunch: { icon: '🥗', label: 'Обед' },
+        dinner: { icon: '🌙', label: 'Ужин' },
+        snack: { icon: '🍌', label: 'Перекус' }
       };
 
       document.getElementById('todayMealsContainer').innerHTML = slots.map(slot => {
@@ -1871,24 +2077,24 @@
         const isDinner = slot === 'dinner';
 
         return `
-          <div class="glass rounded-3xl p-4 space-y-2.5 transition ${isSkipped ? 'opacity-50' : ''} ${isDinner ? 'border-emerald-500/40 ring-1 ring-emerald-500/20' : ''}">
+          <div class="glass rounded-3xl p-4 space-y-3 transition ${isSkipped ? 'opacity-50' : ''} ${isDinner ? 'border-emerald-500/40' : ''}">
             <div class="flex items-start justify-between gap-2">
-              <div>
+              <div class="min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-base">${meta.icon}</span>
+                  <span class="text-sm">${meta.icon}</span>
                   <span class="text-[11px] font-bold uppercase tracking-wider ${isDinner ? 'text-emerald-400' : 'text-slate-400'}">${meta.label}</span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">⏱ ${meal.prepTime}</span>
+                  <span class="text-[10px] text-slate-400">• ⏱ ${meal.prepTime}</span>
                 </div>
-                <h3 class="text-sm font-bold text-white mt-1">${meal.title}</h3>
+                <h3 class="text-sm font-bold text-white mt-1 leading-snug">${meal.title}</h3>
               </div>
 
               <div class="flex items-center gap-1.5 shrink-0">
                 <button onclick="toggleSkipMeal('${state.activeDay}', '${slot}')" class="px-2.5 py-1.5 rounded-xl text-[11px] font-semibold border transition ${
-                  isSkipped ? 'bg-rose-500/25 text-rose-200 border-rose-500/50' : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-rose-500/40'
-                }">${isSkipped ? '🚫 Пропускаю' : 'Пропущу'}</button>
+                  isSkipped ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'
+                }">${isSkipped ? '🚫 Пропуск' : 'Пропущу'}</button>
                 ${!isSkipped ? `
                   <button onclick="toggleEatMeal('${state.activeDay}', '${slot}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                    eaten ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25' : 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
+                    eaten ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'bg-slate-800 text-slate-200 border border-slate-700'
                   }">${eaten ? '✓ Съел' : 'Съел'}</button>
                 ` : ''}
               </div>
@@ -1898,27 +2104,30 @@
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="text-[11px] text-slate-400">Основа:</span>
                 ${meal.variants.map(v => `
-                  <button onclick="changeMealVariant('${state.activeDay}', '${slot}', '${v.id}')" class="px-2.5 py-1 rounded-xl text-[11px] font-semibold transition ${
-                    meal.selectedVariant === v.id ? 'bg-indigo-500/30 text-indigo-200 border border-indigo-400/50' : 'bg-slate-900 text-slate-400 border border-slate-800'
+                  <button onclick="changeMealVariant('${state.activeDay}', '${slot}', '${v.id}')" class="px-2.5 py-1 rounded-xl text-[11px] font-semibold transition border ${
+                    meal.selectedVariant === v.id ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'
                   }">${v.name}</button>
                 `).join('')}
               </div>
             ` : ''}
 
             <div class="bg-slate-900/90 rounded-2xl p-3 border border-slate-800/90 flex items-center justify-between gap-3">
-              <div class="space-y-1.5">
-                <div class="text-[11px] font-bold text-emerald-400">📸 Коллаж твоей порции (${user.portion}):</div>
-                <p class="text-xs text-slate-200 leading-relaxed">${collageText}</p>
-                <div class="flex items-center gap-2 flex-wrap pt-0.5">
-                  <button onclick="openRecipeDetailsModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-300 hover:text-indigo-200 underline">📖 Как готовить →</button>
-                  <button onclick="openFamilyPortionsModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold transition">👨‍👩‍👧‍👦 На всех</button>
-                  <button onclick="openCookConfirmModal('${state.activeDay}', '${slot}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl ${meal.cooked ? 'bg-amber-500/25 text-amber-200 border-amber-500/50' : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30'} border text-[11px] font-bold transition">${meal.cooked ? '✓ Приготовлено' : '🍳 Приготовил'}</button>
-                </div>
+              <div class="min-w-0">
+                <div class="text-[11px] font-bold text-emerald-400">Твоя порция (${user.portion})</div>
+                <p class="text-xs text-slate-200 leading-relaxed mt-0.5">${collageText}</p>
               </div>
-              <div class="text-right shrink-0 bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800">
+              <div class="text-right shrink-0 pl-2 border-l border-slate-800">
                 <div class="text-sm font-extrabold text-white">${macros.kcal} <span class="text-[10px] font-normal text-slate-400">ккал</span></div>
-                <div class="text-[10px] text-slate-400 mt-0.5">Б:${macros.p} • Ж:${macros.f} • У:${macros.c}</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Б:${macros.p} Ж:${macros.f} У:${macros.c}</div>
               </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5">
+              <button onclick="openRecipeDetailsModal('${state.activeDay}', '${slot}')" class="py-1.5 px-2 rounded-xl bg-slate-900 border border-slate-800 text-[11px] font-semibold text-slate-200 truncate">📖 Рецепт</button>
+              <button onclick="openFamilyPortionsModal('${state.activeDay}', '${slot}')" class="py-1.5 px-2 rounded-xl bg-slate-900 border border-slate-800 text-[11px] font-semibold text-emerald-400 truncate">👨‍👩‍👧‍👦 На всех</button>
+              <button onclick="openCookConfirmModal('${state.activeDay}', '${slot}')" class="py-1.5 px-2 rounded-xl border text-[11px] font-semibold truncate ${
+                meal.cooked ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-900 text-slate-200 border-slate-800'
+              }">${meal.cooked ? '✓ Готово' : '🍳 Приготовил'}</button>
             </div>
 
             ${renderStarRatingWidget(meal.recipeId || meal.title)}
@@ -2033,9 +2242,15 @@
       return smaller.every(t => larger.has(t));
     }
 
+    function matchesFridgeItem(fridgeItem, targetName) {
+      if (isSameIngredient(fridgeItem.name, targetName)) return true;
+      if (fridgeItem.replaces && isSameIngredient(fridgeItem.replaces, targetName)) return true;
+      return false;
+    }
+
     function getFridgeStockForIngredient(name) {
       return state.fridge
-        .filter(f => isSameIngredient(f.name, name))
+        .filter(f => matchesFridgeItem(f, name))
         .reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
     }
 
@@ -2043,7 +2258,7 @@
       let remaining = Math.max(0, Number(grams) || 0);
       if (remaining === 0) return;
       const matching = state.fridge
-        .filter(f => isSameIngredient(f.name, name))
+        .filter(f => matchesFridgeItem(f, name))
         .sort((a, b) => {
           const expA = addDaysISO(a.boughtDate || TODAY_ISO, a.shelfLifeDays || 7);
           const expB = addDaysISO(b.boughtDate || TODAY_ISO, b.shelfLifeDays || 7);
@@ -2177,9 +2392,16 @@
       renderMenuTab();
     }
 
+    let bookSearchQuery = '';
+
     function setBookFilter(cat) {
       state.bookFilter = cat;
       saveState();
+      renderMenuTab();
+    }
+
+    function setBookSearch(q) {
+      bookSearchQuery = (q || '').trim().toLowerCase();
       renderMenuTab();
     }
 
@@ -2196,6 +2418,7 @@
 
       document.getElementById('weekDaysTabs').classList.toggle('hidden', !isWeek);
       document.getElementById('menuDayDetails').classList.toggle('hidden', !isWeek);
+      document.getElementById('bookSearchInput').classList.toggle('hidden', isWeek);
       document.getElementById('bookCategoryTabs').classList.toggle('hidden', isWeek);
       document.getElementById('recipeBookContainer').classList.toggle('hidden', isWeek);
 
@@ -2291,9 +2514,13 @@
           }">${c.label}</button>
         `).join('');
 
-        const filtered = state.bookFilter === 'all'
-          ? state.recipeBook
-          : state.recipeBook.filter(r => r.category === state.bookFilter);
+        const filtered = state.recipeBook.filter(r => {
+          if (state.bookFilter !== 'all' && r.category !== state.bookFilter) return false;
+          if (!bookSearchQuery) return true;
+          const inTitle = (r.title || '').toLowerCase().includes(bookSearchQuery);
+          const inIngs = (r.ingredients || []).some(i => (i.name || '').toLowerCase().includes(bookSearchQuery));
+          return inTitle || inIngs;
+        });
 
         const catBadge = { breakfast: '🍳 Завтрак', lunch: '🥗 Обед', dinner: '🌙 Ужин', snack: '🍓 Десерт/Перекус' };
         const activeDayShort = DAYS.find(d => d.id === state.activeDay).short;
@@ -2309,9 +2536,12 @@
                 <h3 class="text-sm font-bold text-white mt-1">${rb.title}</h3>
                 <div class="text-[11px] text-emerald-400 font-semibold mt-0.5">База M: ${rb.kcal} ккал • Б:${rb.p} Ж:${rb.f} У:${rb.c}</div>
               </div>
-              <button onclick="putBookRecipeInActiveDay('${rb.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px] shrink-0">
-                + В ${activeDayShort}
-              </button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="putBookRecipeInActiveDay('${rb.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[11px]">
+                  + В ${activeDayShort}
+                </button>
+                ${rb.id.startsWith('rb_custom_') ? `<button onclick="deleteCustomRecipe('${rb.id}')" class="px-2 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-[11px] font-bold">✕</button>` : ''}
+              </div>
             </div>
             <div class="flex items-center justify-between gap-2 flex-wrap">
               <button onclick="openBookRecipeDetails('${rb.id}')" class="text-xs font-bold text-indigo-300 underline">📖 Как готовить →</button>
@@ -2324,6 +2554,13 @@
           </div>
         `).join('');
       }
+    }
+
+    function deleteCustomRecipe(recipeId) {
+      if (!confirm('Удалить этот рецепт из Книги?')) return;
+      state.recipeBook = state.recipeBook.filter(r => r.id !== recipeId);
+      saveState();
+      renderMenuTab();
     }
 
     function putBookRecipeInActiveDay(recipeId) {
@@ -2418,7 +2655,7 @@
                     }">${item.checked ? '✓' : ''}</div>
                     <div class="min-w-0 flex-1">
                       <div class="break-words ${state.inStoreMode ? 'text-base font-bold' : 'text-xs font-semibold'} ${item.checked ? 'line-through text-slate-400' : 'text-white'}">${item.name}</div>
-                      <div class="text-[11px] text-slate-400">Нужно: <b class="text-slate-200">${item.rawAmount} ${item.unit}</b>${item.replacedWith ? `<span class="text-amber-300 ml-1">• Заменил: ${item.replacedWith}</span>` : ''}</div>
+                      <div class="text-[11px] text-slate-400">Нужно: <b class="text-slate-200">${(item.unit || '').startsWith('г') ? formatNativeAmount(item.name, item.rawAmount) : `${item.rawAmount} ${item.unit}`}</b>${(item.unit || '').includes('учтено') ? ` <span class="text-emerald-400">(${item.unit.replace(/^г\s*\(|\)$/g, '')})</span>` : ''}${item.replacedWith ? `<span class="text-amber-300 ml-1">• Заменил: ${item.replacedWith}</span>` : ''}</div>
                     </div>
                   </button>
                   <div class="flex items-center gap-1 shrink-0">
@@ -2489,24 +2726,34 @@
           let totalFactor = 0;
           allProfileIds.forEach(uid => { if (!skipped.includes(uid)) totalFactor += PORTION_MULTIPLIERS[state.profiles[uid].portion] || 1.0; });
           getEffectiveMealIngredients(meal).forEach(ing => {
-            if (!aggregated[ing.name]) aggregated[ing.name] = { name: ing.name, dept: ing.dept || 'Бакалея', rawG: 0 };
-            aggregated[ing.name].rawG += Math.round((ing.rawG || 0) * totalFactor * reserveMult);
+            const tokens = normalizeIngredientTokens(ing.name);
+            const aggKey = tokens.length > 0 ? tokens.join('+') : ing.name.toLowerCase();
+            if (!aggregated[aggKey]) {
+              aggregated[aggKey] = { name: ing.name, dept: ing.dept || 'Бакалея', rawG: 0 };
+            } else if (ing.name.length < aggregated[aggKey].name.length) {
+              aggregated[aggKey].name = ing.name;
+            }
+            aggregated[aggKey].rawG += Math.round((ing.rawG || 0) * totalFactor * reserveMult);
           });
         });
       });
 
       const prevStateMap = {};
       state.shoppingList.forEach(old => {
-        if (!old.isManual) prevStateMap[old.name] = { checked: !!old.checked, replacedWith: old.replacedWith || '' };
+        if (!old.isManual) {
+          const tokens = normalizeIngredientTokens(old.name);
+          const aggKey = tokens.length > 0 ? tokens.join('+') : old.name.toLowerCase();
+          prevStateMap[aggKey] = { checked: !!old.checked, replacedWith: old.replacedWith || '' };
+        }
       });
       const manualItems = state.shoppingList.filter(i => i.isManual);
 
       const newList = [...manualItems];
-      Object.values(aggregated).forEach(item => {
+      Object.entries(aggregated).forEach(([aggKey, item]) => {
         const fridgeAmount = getFridgeStockForIngredient(item.name);
         const needed = Math.max(0, item.rawG - fridgeAmount);
         if (needed > 0) {
-          const prev = prevStateMap[item.name] || { checked: false, replacedWith: '' };
+          const prev = prevStateMap[aggKey] || { checked: false, replacedWith: '' };
           newList.push({
             id: 'sh_calc_' + Math.random().toString(36).slice(2, 8),
             name: item.name,
@@ -2633,6 +2880,18 @@
           </div>
         `;
       }).join('');
+      const unmarkBtn = document.getElementById('cookUnmarkBtn');
+      const targetMeal = (cookCtx.dayId && cookCtx.slot) ? state.weeklyMenu[cookCtx.dayId]?.[cookCtx.slot] : null;
+      if (unmarkBtn) unmarkBtn.classList.toggle('hidden', !(targetMeal && targetMeal.cooked));
+    }
+
+    function unmarkCooked() {
+      if (cookCtx.dayId && cookCtx.slot && state.weeklyMenu[cookCtx.dayId]?.[cookCtx.slot]) {
+        state.weeklyMenu[cookCtx.dayId][cookCtx.slot].cooked = false;
+      }
+      closeModal('cookConfirmModal');
+      saveState();
+      renderAll();
     }
 
     function confirmCookAndDeduct() {
@@ -2650,10 +2909,51 @@
     }
 
     function openFinishShoppingModal() { document.getElementById('finishShoppingModal').classList.remove('hidden'); }
+    function inferVariantIdFromName(name) {
+      const n = (name || '').toLowerCase();
+      if (n.includes('фарш')) {
+        if (n.includes('индей')) return 'turkey_mince';
+        if (n.includes('кури')) return 'chicken_mince';
+        if (n.includes('говяд')) return 'beef_mince';
+      }
+      if (n.includes('индей')) return 'turkey';
+      if (n.includes('кури') || n.includes('грудк') || n.includes('бедр')) return 'chicken';
+      if (n.includes('говяд')) return 'beef';
+      if (n.includes('свин')) return 'pork_lean';
+      if (n.includes('тун')) return 'tuna';
+      return null;
+    }
+
     function confirmCheckoutToFridgeAndBudget() {
       state.shoppingList.filter(i => i.checked).forEach(item => {
         const finalName = item.replacedWith ? `${item.replacedWith} (вместо ${item.name})` : item.name;
-        state.fridge.unshift({ id: 'fr_' + Date.now() + Math.random().toString(36).slice(2, 5), name: finalName, dept: item.dept, amount: item.rawAmount, unit: 'г', boughtDate: TODAY_ISO, shelfLifeDays: inferShelfLifeDays(finalName, item.dept) });
+        const itemUnit = (item.unit || '').startsWith('г') ? 'г' : ((item.unit || '').startsWith('мл') ? 'мл' : 'шт/уп');
+        state.fridge.unshift({
+          id: 'fr_' + Date.now() + Math.random().toString(36).slice(2, 5),
+          name: finalName,
+          replaces: item.replacedWith ? item.name : '',
+          dept: item.dept,
+          amount: item.rawAmount,
+          unit: itemUnit,
+          boughtDate: TODAY_ISO,
+          shelfLifeDays: inferShelfLifeDays(finalName, item.dept)
+        });
+
+        // Автопереключение основы рецепта в меню, если в магазине заменили мясо/рыбу
+        if (item.replacedWith) {
+          const newVarId = inferVariantIdFromName(item.replacedWith);
+          if (newVarId) {
+            Object.values(state.weeklyMenu || {}).forEach(dayPlan => {
+              ['breakfast', 'lunch', 'dinner', 'snack'].forEach(slot => {
+                const meal = dayPlan[slot];
+                if (!meal || meal.cooked) return;
+                const hasVariant = (meal.variants || []).some(v => v.id === newVarId);
+                const usesOrig = (meal.ingredients || []).some(ing => isSameIngredient(ing.name, item.name));
+                if (hasVariant && usesOrig) meal.selectedVariant = newVarId;
+              });
+            });
+          }
+        }
       });
       state.shoppingList = state.shoppingList.filter(i => !i.checked);
       const totalRub = Number(document.getElementById('checkoutTotalAmount').value);
@@ -2673,6 +2973,8 @@
         const expDate = addDaysISO(bought, life);
         const leftDays = daysUntil(expDate);
         const urgent = isFridgeItemUrgent(item);
+        const stepDelta = item.unit === 'шт/уп' ? -1 : -100;
+        const stepLabel = item.unit === 'шт/уп' ? '-1 шт' : '-100г';
         return `
           <div class="glass rounded-2xl p-3.5 flex items-center justify-between gap-2 border ${urgent ? 'border-amber-500/50 bg-amber-500/10' : 'border-slate-800'}">
             <div>
@@ -2684,7 +2986,7 @@
               <div class="text-[10px] ${leftDays <= 2 ? 'text-amber-300 font-semibold' : 'text-slate-400'} mt-0.5">Годен до: ~${formatRuDate(expDate)} (${leftDays > 0 ? `осталось ${leftDays} дн.` : 'срок на исходе!'})</div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
-              <button onclick="spendFridgeAmount('${item.id}', -100)" class="px-2 py-1 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 border border-slate-700">-100г</button>
+              <button onclick="spendFridgeAmount('${item.id}', ${stepDelta})" class="px-2 py-1 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 border border-slate-700">${stepLabel}</button>
               <button onclick="toggleFridgeUrgent('${item.id}')" class="px-2.5 py-1 rounded-xl text-xs border transition ${urgent ? 'bg-amber-500 text-slate-950 font-bold border-amber-400' : 'bg-slate-900 text-slate-400 border-slate-800'}">🔥</button>
               <button onclick="removeFridgeItem('${item.id}')" class="px-2 py-1 text-slate-500 hover:text-rose-400 text-xs">✕</button>
             </div>
@@ -2736,8 +3038,18 @@
 
     // ================= ВКЛАДКА 5: БЮДЖЕТ =================
     function renderBudgetTab() {
+      const nowD = new Date();
+      const monthLabel = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(nowD).replace(' г.', '');
+      const badgeEl = document.getElementById('budgetMonthBadge');
+      if (badgeEl) badgeEl.textContent = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+      const curSuffix = `.${String(nowD.getMonth() + 1).padStart(2, '0')}.${nowD.getFullYear()}`;
+
       let homeSum = 0, outSum = 0;
-      state.budgetLogs.forEach(b => { if (b.category === 'home') homeSum += Number(b.amount); else outSum += Number(b.amount); });
+      state.budgetLogs.forEach(b => {
+        if (!b.date || b.date.endsWith(curSuffix)) {
+          if (b.category === 'home') homeSum += Number(b.amount); else outSum += Number(b.amount);
+        }
+      });
       document.getElementById('budgetTotalMonth').textContent = `${(homeSum + outSum).toLocaleString('ru-RU')} ₽`;
       document.getElementById('budgetHomeTotal').textContent = `${homeSum.toLocaleString('ru-RU')} ₽`;
       document.getElementById('budgetOutTotal').textContent = `${outSum.toLocaleString('ru-RU')} ₽`;
@@ -2773,6 +3085,23 @@
         : 'py-3 px-3 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2 bg-slate-900 text-slate-300 border-slate-700 transition';
       document.getElementById('lblWalkedToday').textContent = todayAct.walked ? '✓ Прогулка засчитана!' : 'Сегодня гулял';
 
+      const yestIso = addDaysISO(TODAY_ISO, -1);
+      const yestAct = (u.dailyActivity && u.dailyActivity[yestIso]) || { trained: false, walked: false };
+      const yTrBtn = document.getElementById('btnTrainedYesterday');
+      const yWkBtn = document.getElementById('btnWalkedYesterday');
+      if (yTrBtn) {
+        yTrBtn.className = yestAct.trained
+          ? 'px-2.5 py-1 rounded-xl border text-[11px] font-bold bg-emerald-500/25 text-emerald-300 border-emerald-500/50 transition'
+          : 'px-2.5 py-1 rounded-xl border text-[11px] font-semibold bg-slate-900 text-slate-400 border-slate-800 transition';
+        yTrBtn.textContent = yestAct.trained ? '✓ 🏋️ Вчера' : '🏋️ Вчера';
+      }
+      if (yWkBtn) {
+        yWkBtn.className = yestAct.walked
+          ? 'px-2.5 py-1 rounded-xl border text-[11px] font-bold bg-sky-500/25 text-sky-300 border-sky-500/50 transition'
+          : 'px-2.5 py-1 rounded-xl border text-[11px] font-semibold bg-slate-900 text-slate-400 border-slate-800 transition';
+        yWkBtn.textContent = yestAct.walked ? '✓ 🚶 Вчера' : '🚶 Вчера';
+      }
+
       const bmi = (u.weight / Math.pow((u.height || 170) / 100, 2)).toFixed(1);
       document.getElementById('bmiBadge').textContent = `ИМТ: ${bmi}`;
       let advice = '', activities = [];
@@ -2805,10 +3134,15 @@
         </div>
       ` : '<div class="text-xs text-slate-400">Пока нет замеров.</div>';
 
-      const monthNames = { '2026-10': 'Октябрь 2026', '2026-11': 'Ноябрь 2026', '2026-12': 'Декабрь 2026' };
+      const formatMonthKey = (mKey) => {
+        const [yr, mo] = mKey.split('-').map(Number);
+        if (!yr || !mo) return mKey;
+        const lbl = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(new Date(yr, mo - 1, 1)).replace(' г.', '');
+        return lbl.charAt(0).toUpperCase() + lbl.slice(1);
+      };
       document.getElementById('monthlyActivityStats').innerHTML = Object.entries(u.activityHistory || {}).map(([mKey, val]) => `
         <div class="bg-slate-900/80 rounded-2xl p-3 border border-slate-800">
-          <div class="text-xs font-bold text-white">${monthNames[mKey] || mKey}</div>
+          <div class="text-xs font-bold text-white">${formatMonthKey(mKey)}</div>
           <div class="flex items-center gap-3 mt-1.5 text-xs"><span class="text-emerald-400 font-semibold">🏋️ ${val.trained} трен.</span><span class="text-sky-400 font-semibold">🚶 ${val.walked} прогул.</span></div>
         </div>
       `).join('');
@@ -2819,12 +3153,13 @@
       document.getElementById('sbUrlInput').value = state.cloudConfig.sbUrl || ''; document.getElementById('sbKeyInput').value = state.cloudConfig.sbKey || ''; document.getElementById('geminiKeyInput').value = state.cloudConfig.geminiKey || '';
     }
 
-    function toggleDailyActivity(type) {
+    function toggleDailyActivity(type, isYesterday = false) {
+      const targetIso = isYesterday ? addDaysISO(TODAY_ISO, -1) : TODAY_ISO;
       const u = state.profiles[state.activeUserId];
-      u.dailyActivity = u.dailyActivity || {}; u.dailyActivity[TODAY_ISO] = u.dailyActivity[TODAY_ISO] || { trained: false, walked: false };
-      const mKey = TODAY_ISO.slice(0, 7); u.activityHistory = u.activityHistory || {}; u.activityHistory[mKey] = u.activityHistory[mKey] || { trained: 0, walked: 0 };
-      const nv = !u.dailyActivity[TODAY_ISO][type];
-      u.dailyActivity[TODAY_ISO][type] = nv;
+      u.dailyActivity = u.dailyActivity || {}; u.dailyActivity[targetIso] = u.dailyActivity[targetIso] || { trained: false, walked: false };
+      const mKey = targetIso.slice(0, 7); u.activityHistory = u.activityHistory || {}; u.activityHistory[mKey] = u.activityHistory[mKey] || { trained: 0, walked: 0 };
+      const nv = !u.dailyActivity[targetIso][type];
+      u.dailyActivity[targetIso][type] = nv;
       u.activityHistory[mKey][type] = Math.max(0, (u.activityHistory[mKey][type] || 0) + (nv ? 1 : -1));
       saveState(); renderProgressTab();
     }
@@ -2868,7 +3203,17 @@
       initSupabaseSync();
       alert('Настройки сохранены, подключаюсь к облаку!');
     }
-    function resetDemoData() { if (confirm('Сбросить данные?')) { localStorage.removeItem(STORAGE_KEY); state = loadState(); renderAll(); } }
+    function resetDemoData() {
+      if (confirm('Сбросить локальные данные? (Настройки Supabase и Gemini сохранятся)')) {
+        const savedCloud = JSON.parse(JSON.stringify(state.cloudConfig || {}));
+        localStorage.removeItem(STORAGE_KEY);
+        state = loadState();
+        state.cloudConfig = savedCloud;
+        syncBuiltInRecipes();
+        saveState(true);
+        renderAll();
+      }
+    }
 
     // ================= ИИ-МОДАЛКИ =================
     function openExtraFoodModal() { document.getElementById('extraFoodModal').classList.remove('hidden'); }
@@ -3102,7 +3447,8 @@
     }
 
     function renderAll() {
-      renderHeader(); renderTodayTab(); renderMenuTab(); renderShoppingTab(); renderFridgeTab(); renderBudgetTab(); renderTasksTab(); renderProgressTab();
+      applyTheme();
+      renderHeader(); renderTodayTab(); renderMenuTab(); renderShoppingTab(); renderFridgeTab(); renderBudgetTab(); renderTasksTab(); renderProgressTab(); renderMoreTab();
     }
 
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {})); }
