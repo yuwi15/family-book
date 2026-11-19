@@ -1,4 +1,4 @@
-const CACHE_NAME = 'family-book-v16';
+const CACHE_NAME = 'family-book-v17';
 const ASSETS = [
   './',
   './index.html',
